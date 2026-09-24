@@ -47,6 +47,48 @@ jobs:
 
       - name: Build
         run: cmake --build build --config Release --parallel
+        
+        
+        
+      - name: Install Linux packaging tools
+        if: runner.os == 'Linux'
+        run: |
+          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          chmod +x linuxdeploy-x86_64.AppImage
+
+          wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+          chmod +x linuxdeploy-plugin-qt-x86_64.AppImage
+
+      - name: Prepare Linux AppDir
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p AppDir/usr/bin
+          cp build/src/mathdoc AppDir/usr/bin/mathdoc
+
+      - name: Build Linux AppImage
+        if: runner.os == 'Linux'
+        run: |
+          export PATH="$PWD:$PATH"
+          export QMAKE=$(find "$Qt6_DIR" -name qmake -type f | head -n 1)
+
+          ./linuxdeploy-x86_64.AppImage \
+            --appdir AppDir \
+            --plugin qt \
+            --output appimage
+
+      - name: Rename Linux AppImage
+        if: runner.os == 'Linux'
+        run: |
+          mv MathDoc-x86_64.AppImage MathDoc-Linux-x86_64.AppImage
+
+      - name: Upload Linux artifact
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v7
+        with:
+          name: MathDoc-Linux
+          path: MathDoc-Linux-x86_64.AppImage
+          
+          
 
       - name: Deploy Qt application
         if: runner.os == 'Windows'
@@ -69,6 +111,7 @@ jobs:
           name: MathDoc-Windows
           path: MathDoc-Windows.zip
 
+          
           
       - name: Deploy Qt application
         if: runner.os == 'macOS'
