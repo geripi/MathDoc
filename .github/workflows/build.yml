@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         os:
           - ubuntu-latest
@@ -30,15 +31,18 @@ jobs:
             g++ \
             qt6-base-dev
 
-      - name: Install macOS dependencies
-        if: runner.os == 'macOS'
-        run: |
-          brew install qt cmake
+      - name: Install CMake
+        if: runner.os != 'Linux'
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmakeGenerator: Ninja
 
-      - name: Install Windows dependencies
-        if: runner.os == 'Windows'
-        run: |
-          choco install cmake qt6-base -y
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          modules: ''
+          cache: true
 
       - name: Configure
         run: cmake -S . -B build
