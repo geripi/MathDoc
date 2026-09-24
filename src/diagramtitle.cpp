@@ -306,8 +306,8 @@ void DiagramTitle::insertTextAt(int64_t pos, const QString& inText) {
     QString text = inText;
     if (pos > m_text.length()) pos = m_text.length();
     if(pos>0){
-        if (m_text.at(pos-1) == "\\") {
-            m_text.removeAt(pos-1);
+        if (m_text.at(pos-1) == QChar('\\')) {
+            m_text.remove(pos-1, 1);
             m_cursorPos--; pos--;
             text.replace(m_cursorPos, 1, getGreekCharacter(inText));
         }

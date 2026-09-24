@@ -1173,7 +1173,7 @@ void MathEdit::insertTextAt(int64_t pos, const QString& inText) {
     if (pos > m_content.length()) pos = m_content.length();
     if(pos>0){
         if (m_content.at(pos-1) == QChar('\\')) {
-            m_content.removeAt(pos-1);
+            m_content.remove(pos-1, 1);
             m_cursorPos--; pos--;
             QString str = getGreekCharacter(inText);
             text.replace(0, 1, getGreekCharacter(inText));
