@@ -47,3 +47,46 @@ jobs:
 
       - name: Build
         run: cmake --build build --config Release --parallel
+
+      - name: Deploy Qt application
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          mkdir package
+          Copy-Item build/src/mathdoc.exe package/
+          windeployqt package/mathdoc.exe
+
+      - name: Create Windows archive
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Compress-Archive -Path package/* -DestinationPath MathDoc-Windows.zip
+
+      - name: Upload Windows artifact
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: MathDoc-Windows
+          path: MathDoc-Windows.zip
+
+          
+      - name: Deploy Qt application
+        if: runner.os == 'macOS'
+        run: |
+          mkdir package
+          cp -R build/src/mathdoc.app package/
+          macdeployqt package/mathdoc.app
+
+      - name: Create macOS archive
+        if: runner.os == 'macOS'
+        run: |
+          cd package
+          zip -r ../MathDoc-macOS.zip mathdoc.app
+
+      - name: Upload macOS artifact
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: MathDoc-macOS
+          path: MathDoc-macOS.zip
+
