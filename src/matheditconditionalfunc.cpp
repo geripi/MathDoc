@@ -40,6 +40,8 @@ void MathEditConditionalFunc::initialize() {
 }
 
 void MathEditConditionalFunc::setFocus(Qt::FocusReason focusReason) {
+    Q_UNUSED(focusReason);
+    
     MathEdit *cashedChild = getCashedChild();
     
     bool cashedChildIsExpr;
@@ -140,8 +142,8 @@ void MathEditConditionalFunc::paint(QPainter* painter, const QStyleOptionGraphic
     QColor textColor = Qt::darkGreen;
     painter->setPen(QPen(textColor, 1, Qt::SolidLine)); painter->setFont(getFont());
     for (int32_t i = 0; i<m_boolList.length(); i++) {
-        painter->drawText(m_exprList.at(i)->pos().x() - 9.5*getPaddingH(),
-                          m_exprList.at(i)->pos().y() + m_exprList.at(i)->baseline() + 0.4*fm.ascent(),
+        painter->drawText(QPointF(m_exprList.at(i)->pos().x() - 9.5*getPaddingH(),
+                          m_exprList.at(i)->pos().y() + m_exprList.at(i)->baseline() + 0.4*fm.ascent()),
                           ":");
     }
     
@@ -153,13 +155,13 @@ void MathEditConditionalFunc::paint(QPainter* painter, const QStyleOptionGraphic
     cursorPosUpdate();
     if (isCursorVisible()) { // && i == m_cursorPos) {
         painter->setPen(QPen(Qt::black, 1));
-        painter->drawLine(getCursorX()+1, getCursorY(), getCursorX()+1, getCursorH());
+        painter->drawLine(QPointF(getCursorX()+1, getCursorY()), QPointF(getCursorX()+1, getCursorH()));
         painter->setPen(QPen());
     }
 }
 
 void MathEditConditionalFunc::updateBoundingRect() {
-    const int count = qMin(m_boolList.size(), m_exprList.size());
+    const qsizetype count = qMin(m_boolList.size(), m_exprList.size());
     if (count == 0) {
         prepareGeometryChange();
         setBoundingRectangle(QRectF());
@@ -273,6 +275,8 @@ void MathEditConditionalFunc::updateBoundingRect() {
 }
 
 void MathEditConditionalFunc::compute(const MathVariable& boolMask) {
+    Q_UNUSED(boolMask);
+    
     for (MathEdit *m: m_boolList)  {
         m->compute();
     }
@@ -304,10 +308,13 @@ void MathEditConditionalFunc::compute(const MathVariable& boolMask) {
 }
 
 void MathEditConditionalFunc::setFocusToChild1(Qt::FocusReason focusReason) {
+    Q_UNUSED(focusReason);
+    
     getBoolList().at(0)->setFocus();
 }
 
 void MathEditConditionalFunc::setFocusToChild2(Qt::FocusReason focusReason) {
+    Q_UNUSED(focusReason);
     getExprList().at(0)->setFocus();
 }
 
@@ -318,6 +325,7 @@ void MathEditConditionalFunc::keyPressEvent(QKeyEvent* event)
     const bool altPressed = event->modifiers() & Qt::AltModifier;
     const bool shiftPressed = event->modifiers() & Qt::ShiftModifier;
     const bool ctrlPressed = event->modifiers() & Qt::ControlModifier;
+    Q_UNUSED(ctrlPressed);
     
     QString charToInsert = event->text();
     int eventKey = event->key();
@@ -352,7 +360,7 @@ void MathEditConditionalFunc::keyPressEvent(QKeyEvent* event)
     // It has to be in the m_content string, but is never drawn by paint().
     QString lastChar = "";
     m_content.remove("(");
-    if (!m_content.isEmpty()) { QString lastChar = m_content.last(1); }
+    if (!m_content.isEmpty()) { lastChar = m_content.last(1); }
     if (lastChar == "(" && getCursorPos() >= m_content.length()) setCursorTo(m_content.length() - 1);
     if (lastChar != "(") m_content.append("(");
     
@@ -391,7 +399,7 @@ QJsonObject MathEditConditionalFunc::toJson() const {
     object["content"] = m_content;
     //object["argument"] = m_argument->toJson();
     //object["base"] = m_base->toJson();
-    object["mathFontSize"] = getMathFontSize();
+    object["mathFontSize"] = static_cast<int>(getMathFontSize());
     
     QJsonArray boolListArray;
     for(MathEdit *item: getBoolList()) {
@@ -542,11 +550,11 @@ void MathEditConditionalFunc::updateBracesPath(const QPointF& topLeft, qreal tot
     QPointF Point1, cPoint1_1, cPoint1_2;
     QPointF Point2, cPoint2_1, cPoint2_2;
     QPointF Point3, cPoint3_1, cPoint3_2;
-    QPointF Point4, cPoint4_1, cPoint4_2;
+    QPointF Point4, cPoint4_1, cPoint4_2; Q_UNUSED(cPoint4_1); Q_UNUSED(cPoint4_2);
     QPointF Point5, cPoint5_1, cPoint5_2;
     QPointF Point6, cPoint6_1, cPoint6_2;
     QPointF Point7, cPoint7_1, cPoint7_2;
-    QPointF Point8, cPoint8_1, cPoint8_2;
+    QPointF Point8, cPoint8_1, cPoint8_2; Q_UNUSED(cPoint8_1); Q_UNUSED(cPoint8_2);
     QPointF Point9, cPoint9_1, cPoint9_2;
     QPointF Point10, cPoint10_1, cPoint10_2;
     QPointF Point11, cPoint11_1, cPoint11_2;

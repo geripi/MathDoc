@@ -38,9 +38,9 @@ public:
     // --- Getters ---
     const QList<qreal>& values() const;
     const QList<qreal>& unit() const;
-    const qreal getUnitAt(int i) const;
-    const qreal last() const { if (!m_values.isEmpty()) { return m_values.last(); } else { return std::numeric_limits<qreal>::max(); } }
-    const qreal first() const { if (!m_values.isEmpty()) { return m_values.first(); } else { return std::numeric_limits<qreal>::max(); } }
+    qreal getUnitAt(int64_t i) const;
+    qreal last() const { if (!m_values.isEmpty()) { return m_values.last(); } else { return std::numeric_limits<qreal>::max(); } }
+    qreal first() const { if (!m_values.isEmpty()) { return m_values.first(); } else { return std::numeric_limits<qreal>::max(); } }
     
     qreal& operator[](qsizetype index); // Access value by index (read/write)
     const qreal& operator[](qsizetype index) const; // Access value by index (read-only)
@@ -55,7 +55,7 @@ public:
     // --- Setters ---
     void setValues(const QList<qreal>& values);
     void setUnit(const QList<qreal>& unit);
-    void setUnitAt(int i, qreal unitExponent);
+    void setUnitAt(int64_t i, qreal unitExponent);
     void clear() { m_values.clear(); m_unit = QList<qreal>({0,0,0,0,0,0,0});}
     void setErrorValue(qreal e = std::numeric_limits<qreal>::max()) { clear(); m_values = QList<qreal>({e}); }
     

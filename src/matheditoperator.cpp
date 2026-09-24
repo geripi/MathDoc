@@ -114,7 +114,7 @@ QJsonObject MathEditOperator::toJson() const {
     QJsonObject object;
     object["type"] = type();
     object["content"] = m_content;
-    object["mathFontSize"] = getMathFontSize();
+    object["mathFontSize"] = static_cast<int>(getMathFontSize());
     
     QJsonArray childItemsArray;
     for(MathEdit *child:getContItems()) {

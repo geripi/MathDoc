@@ -99,12 +99,12 @@ private:
     void updateSceneRect();
     void setModified(bool modified); // Helper function for modifiedChanged signal
     qreal m_cursorHeight; // Store the actual height of your cursor item
-    bool itemIsPageTextItem(QGraphicsItem *item) { if(PageTextItem* textItem = dynamic_cast<PageTextItem*>(item)) return true; return false; }
-    bool itemIsPageMathItem(QGraphicsItem *item) { if(PageMathItem* mathItem = dynamic_cast<PageMathItem*>(item)) return true; return false; }
+    bool itemIsPageTextItem(QGraphicsItem *item) { return dynamic_cast<PageTextItem*>(item) != nullptr; }
+    bool itemIsPageMathItem(QGraphicsItem *item) { return dynamic_cast<PageMathItem*>(item) != nullptr; }
 //    bool itemIsMathLeafItem(QGraphicsItem *item) { if(MathLeafEdit* leafItem = dynamic_cast<MathLeafEdit*>(item)) return true; return false; }
-    bool itemIsMathLeafItem(QGraphicsItem *item) { if(MathEdit* leafItem = dynamic_cast<MathEdit*>(item)) return true; return false; }
-    bool itemIsQGraphicsRectItem(QGraphicsItem *item) { if(QGraphicsRectItem* textItem = dynamic_cast<QGraphicsRectItem*>(item)) return true; return false; }
-    bool itemIsPageA4Item(QGraphicsItem *item) { if(PageA4Item* textItem = dynamic_cast<PageA4Item*>(item)) return true; return false; }
+    bool itemIsMathLeafItem(QGraphicsItem *item) { return dynamic_cast<MathEdit*>(item) != nullptr; }
+    bool itemIsQGraphicsRectItem(QGraphicsItem *item) { return dynamic_cast<QGraphicsRectItem*>(item) != nullptr; }
+    bool itemIsPageA4Item(QGraphicsItem *item) { return dynamic_cast<PageA4Item*>(item) != nullptr; }
     Data *m_data;
 
 private slots:

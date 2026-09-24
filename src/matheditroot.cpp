@@ -29,7 +29,7 @@ MathEditRoot::MathEditRoot(Data *d, PageMathItem *parentPageMathItem, QGraphicsO
     m_argument = new MathEdit(d, parentPageMathItem, this);
     m_index = new MathEdit(QString("2"),d, parentPageMathItem, this);
     //m_base = MathEditCreateNew::newMathEdit("10", MathEdit::MEConstant, d, parentPageMathItem, this);
-    m_index->setMathFontSize(getMathFontSize()*0.6);
+    m_index->setMathFontSize(qRound(static_cast<qreal>(getMathFontSize())*0.6));
     
     initializeParenthesis();
 }
@@ -40,6 +40,8 @@ MathEditRoot::MathEditRoot(QString text, Data *d, PageMathItem *parentPageMathIt
 }
 
 void MathEditRoot::setFocus(Qt::FocusReason focusReason) {
+    Q_UNUSED(focusReason);
+    
     MathEdit *cashedChild = getCashedChild();
     if (cashedChild == m_argument && cashedChild->getRightArrowPressed()) { // leave this towards the right
         setCursorToEnd();
@@ -117,22 +119,22 @@ void MathEditRoot::paint(QPainter* painter, const QStyleOptionGraphicsItem* opti
     
     QRectF indexBBox = m_index->boundingRect(), argBBox = m_argument->boundingRect();
     
-    painter->drawLine(                                0, 0.6*getPaddingV(),
-                      indexBBox.width()-2*getPaddingH(), 0.6*getPaddingV());
+    painter->drawLine(QPointF(                                0, 0.6*getPaddingV()),
+                      QPointF(indexBBox.width()-2*getPaddingH(), 0.6*getPaddingV()));
     
-    painter->drawLine(indexBBox.width()-2*getPaddingH(), 0.6*getPaddingV(),
-                                      indexBBox.width(), boundingRect().bottom());
+    painter->drawLine(QPointF(indexBBox.width()-2*getPaddingH(), 0.6*getPaddingV()),
+                      QPointF(                indexBBox.width(), boundingRect().bottom()));
     
-    painter->drawLine(                indexBBox.width(), boundingRect().bottom(),
-                      indexBBox.width()+2*getPaddingH(), boundingRect().top());
+    painter->drawLine(QPointF(                indexBBox.width(), boundingRect().bottom()),
+                      QPointF(indexBBox.width()+2*getPaddingH(), boundingRect().top()));
     
-    painter->drawLine(indexBBox.width()+2*getPaddingH(),   boundingRect().top(),
-      indexBBox.width()+4*getPaddingH()+argBBox.width(), boundingRect().top());
+    painter->drawLine(QPointF(indexBBox.width()+2*getPaddingH(),   boundingRect().top()),
+                      QPointF(indexBBox.width()+4*getPaddingH()+argBBox.width(), boundingRect().top()));
     
     cursorPosUpdate();
     if (isCursorVisible()) { // && i == m_cursorPos) {
         painter->setPen(QPen(Qt::black, 1));
-        painter->drawLine(getCursorX()+1, getCursorY(), getCursorX()+1, getCursorH());
+        painter->drawLine(QPointF(getCursorX()+1, getCursorY()), QPointF(getCursorX()+1, getCursorH()));
         painter->setPen(QPen());
     }
 }
@@ -188,6 +190,7 @@ void MathEditRoot::keyPressEvent(QKeyEvent* event)
     const bool altPressed = event->modifiers() & Qt::AltModifier;
     const bool shiftPressed = event->modifiers() & Qt::ShiftModifier;
     const bool ctrlPressed = event->modifiers() & Qt::ControlModifier;
+    Q_UNUSED(ctrlPressed);
     
     QString charToInsert = event->text();
     int eventKey = event->key();
@@ -240,7 +243,7 @@ void MathEditRoot::keyPressEvent(QKeyEvent* event)
     // It has to be in the m_content string, but is never drawn by paint().
     QString lastChar = "";
     m_content.remove("(");
-    if (!m_content.isEmpty()) { QString lastChar = m_content.last(1); }
+    if (!m_content.isEmpty()) { lastChar = m_content.last(1); }
     if (lastChar == "(" && getCursorPos() >= m_content.length()) setCursorTo(m_content.length() - 1);
     if (lastChar != "(") m_content.append("(");
     
@@ -273,15 +276,15 @@ bool MathEditRoot::isPartOfFuncStr(QString testStr) {
     return b;
 }
 
-void MathEditRoot::insertTextAt(int32_t pos, const QString& inText) {
+void MathEditRoot::insertTextAt(int64_t pos, const QString& inText) {
     m_argument->insertTextAt(pos, inText);
 }
 
-void MathEditRoot::insertItemAt(int32_t pos, MathEdit *id) {
+void MathEditRoot::insertItemAt(int64_t pos, MathEdit *id) {
     m_argument->insertItemAt(pos,id);
 }
 
-void MathEditRoot::insertItemsAt(int32_t pos, QList<MathEdit*> list) {
+void MathEditRoot::insertItemsAt(int64_t pos, QList<MathEdit*> list) {
     m_argument->insertItemsAt(pos,list);
 }
 
@@ -299,7 +302,7 @@ QJsonObject MathEditRoot::toJson() const {
     object["content"] = m_content;
     object["argument"] = m_argument->toJson();
     object["index"] = m_index->toJson();
-    object["mathFontSize"] = getMathFontSize();
+    object["mathFontSize"] = static_cast<int>(getMathFontSize());
     
     QJsonArray childItemsArray;
     for(MathEdit *child:getContItems()) {

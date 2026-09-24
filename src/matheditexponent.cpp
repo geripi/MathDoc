@@ -21,11 +21,11 @@
 
 MathEditExponent::MathEditExponent(Data *d, PageMathItem *parentPageMathItem, QGraphicsObject* parent)
 :MathEdit(d, parentPageMathItem, parent) {
-    setMathFontSize(getMathFontSize()*0.8333333333333333333333333333333333333333333333333333333333);
+    setMathFontSize(qRound(static_cast<qreal>(getMathFontSize())*0.8333333333333333333333333333333333333333333333333333333333));
     
-    QFont font(getFontName(), getMathFontSize());
+    QFont font(getFontName(), static_cast<int>(getMathFontSize()));
     setFont(font);
-    QFont subfont(getFontName(), getMathFontSize()*getSubScriptScale());
+    QFont subfont(getFontName(), qRound(static_cast<qreal>(getMathFontSize())*getSubScriptScale()));
     setSubFont(subfont);
     
 }
@@ -78,7 +78,7 @@ QJsonObject MathEditExponent::toJson() const
     QJsonObject object;
     object["type"] = type();
     object["content"] = m_content;
-    object["mathFontSize"] = getMathFontSize();
+    object["mathFontSize"] = static_cast<int>(getMathFontSize());
     
     QJsonArray childItemsArray;
     for(MathEdit *child: getContItems()) {

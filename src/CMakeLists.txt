@@ -87,6 +87,20 @@ qt6_add_resources(MATHDOC_SOURCES resources.qrc)
 
 # Create the executable
 add_executable(mathdoc ${MATHDOC_SOURCES})
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(mathdoc PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Wconversion
+        -Wsign-conversion
+        -Wshadow
+    )
+elseif(MSVC)
+    target_compile_options(mathdoc PRIVATE
+        /W4
+    )
+endif()
 
 # Enable profiling for debug builds
 if(CMAKE_BUILD_TYPE MATCHES "Debug")

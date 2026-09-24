@@ -39,7 +39,7 @@ public:
     void setSubFont(const QFont &f) { m_subFont = f; }
     QFontMetricsF subFontMetrics() const{ return m_subFontMetrics; }
     void setSubFontMetrics(const QFontMetricsF &fm) { m_subFontMetrics = fm; }
-    int mathFontSize() const{ return m_mathFontSize; }
+    qreal mathFontSize() const{ return m_mathFontSize; }
     void setMathFontSize(qreal s);
     
     QRectF boundingRect() const override { return m_boundingRect; }

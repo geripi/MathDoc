@@ -43,9 +43,9 @@ public:
     MathEdit *getNumerator() { return m_numerator; }
     MathEdit *getDenominator() { return m_denominator; }
     
-    void insertTextAt(int32_t pos, const QString& inText) override;
-    void insertItemAt(int32_t pos, MathEdit *id) override;
-    void insertItemsAt(int32_t pos, QList<MathEdit*> list) override;
+    void insertTextAt(int64_t pos, const QString& inText) override;
+    void insertItemAt(int64_t pos, MathEdit *id) override;
+    void insertItemsAt(int64_t pos, QList<MathEdit*> list) override;
     
     void appendToNumerator(QString cont, QList<MathEdit*> meList);
     void appendToDenominator(QString cont, QList<MathEdit*> meList);
@@ -64,7 +64,7 @@ public:
     
 protected:
     //void keyPressEvent(QKeyEvent* event) override;
-    bool processContent(int32_t selBegin, int32_t selEnd) override { return true; }
+    bool processContent(int64_t selBegin, int64_t selEnd) override { Q_UNUSED(selBegin); Q_UNUSED(selEnd); return true; }
     
     
 private:

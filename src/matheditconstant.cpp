@@ -59,7 +59,7 @@ void MathEditConstant::keyPressEvent(QKeyEvent* event)
         QString newContent = m_content;
         newContent.insert(m_cursorPos, charToInsert);
         
-        int pos = m_cursorPos;
+        int pos = static_cast<int>(m_cursorPos);
         QValidator::State state = m_validator.validate(newContent, pos);
         
         if (state != QValidator::Invalid) {
@@ -127,7 +127,7 @@ QJsonObject MathEditConstant::toJson() const {
     QJsonObject object;
     object["type"] = type();
     object["content"] = m_content;
-    object["mathFontSize"] = getMathFontSize();
+    object["mathFontSize"] = static_cast<int>(getMathFontSize());
     
     QJsonArray childItemsArray;
     for(MathEdit *child: getContItems()) {
@@ -150,6 +150,8 @@ void MathEditConstant::fromJson(const QJsonObject& object) {
 }
 
 void MathEditConstant::compute(const MathVariable& boolMask) {
+    Q_UNUSED(boolMask);
+    
     if (canConvertToMathVariable(getContent())) {
         setValue(convertToMathVariable(getContent()));
     } else {

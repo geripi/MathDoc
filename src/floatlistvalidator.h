@@ -15,6 +15,7 @@ public:
     
     State validate(QString &input, int &pos) const override
     {
+        Q_UNUSED(pos);
         const QStringList values = input.split(',');
         
         for (int i = 0; i < values.size(); ++i) {

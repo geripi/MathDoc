@@ -95,8 +95,8 @@ public:
     PageMathItem *getParentPageMathItem() { return m_parentPageMathItem; }
     virtual void setCursorToBegin() { m_cursorPos = 0; }
     virtual void setCursorToEnd() { m_cursorPos = m_content.length(); }
-    int32_t getCursorPos() const { return m_cursorPos; }
-    void setCursorTo(int32_t p) { if (p>m_content.length()) setCursorToEnd(); else if (p<0) setCursorToBegin(); else m_cursorPos = p; }
+    int64_t getCursorPos() const { return m_cursorPos; }
+    void setCursorTo(int64_t p) { if (p>m_content.length()) setCursorToEnd(); else if (p<0) setCursorToBegin(); else m_cursorPos = p; }
     virtual void setCursorRightOf(MathEdit* child);
     virtual void setCursorLeftOf(MathEdit* child);
     bool isCursorVisible() { return m_cursorVisible; }
@@ -104,48 +104,48 @@ public:
     qreal getCursorY() { return m_cursorY; }
     qreal getCursorW() { return m_cursorW; }
     qreal getCursorH() { return m_cursorH; }
-    int32_t getSelectBegin() { return m_selectBegin; }
-    void setSelectBegin(int32_t i) { m_selectBegin = i; }
-    int32_t getSelectEnd() { return m_selectEnd; }
-    void setSelectEnd(int32_t i) { m_selectEnd = i; }
-    int32_t getSelectAnchor() { return m_selectAnchor; }
-    void setSelectAnchor(int32_t i) { m_selectAnchor = i; }
+    int64_t getSelectBegin() { return m_selectBegin; }
+    void setSelectBegin(int64_t i) { m_selectBegin = i; }
+    int64_t getSelectEnd() { return m_selectEnd; }
+    void setSelectEnd(int64_t i) { m_selectEnd = i; }
+    int64_t getSelectAnchor() { return m_selectAnchor; }
+    void setSelectAnchor(int64_t i) { m_selectAnchor = i; }
     
-    MathEdit* getChildAtPos(int32_t pos);
+    MathEdit* getChildAtPos(int64_t pos);
     MathEdit* getChildAtCursorPos() { return getChildAtPos(m_cursorPos); } //abc#def
     MathEdit* getChildBeforeCursorPos() { return getChildAtPos(m_cursorPos-1); }
-    int getChildIndexAtPos(int32_t pos);
-    int getChildIndexAtCursorPos() { return getChildIndexAtPos(m_cursorPos); }
-    int getChildIndexBeforeCursorPos() { return getChildIndexAtPos(m_cursorPos-1); }
-    std::pair<int32_t, int32_t> getChildRangeIDsAt(int32_t begin, int32_t length);
+    int64_t getChildIndexAtPos(int64_t pos);
+    int64_t getChildIndexAtCursorPos() { return getChildIndexAtPos(m_cursorPos); }
+    int64_t getChildIndexBeforeCursorPos() { return getChildIndexAtPos(m_cursorPos-1); }
+    std::pair<int64_t, int64_t> getChildRangeIDsAt(int64_t begin, int64_t length);
     MathEdit* getUnit() { return m_unit; }
     void setUnit(MathEdit *m) { m_unit = m; }
     
     void processInitText(QString text); // TODO: Implement what should happen when initial string is given to c'tor
     virtual void insertText(const QString& inText);
-    virtual void insertTextAt(int32_t pos, const QString& inText);
+    virtual void insertTextAt(int64_t pos, const QString& inText);
     virtual void insertItem(MathEdit *id);
     virtual void insertItems(QList<MathEdit*> list);
-    virtual void insertItemAt(int32_t pos, MathEdit *id);
-    virtual void insertItemsAt(int32_t pos, QList<MathEdit*> list);
+    virtual void insertItemAt(int64_t pos, MathEdit *id);
+    virtual void insertItemsAt(int64_t pos, QList<MathEdit*> list);
     void insertFnString(QKeyEvent* event);
     
     QString resultString(bool units);
     void appendSIUnit(QString unitStr, qreal exponent, bool withMultiplication);
     
-    MathEdit* createNewItem(QString s, int Type);
-    MathEdit* createNewVariableAndItem(QString s, int Type);
+    MathEdit* createNewItem(QString s, int type);
+    MathEdit* createNewVariableAndItem(QString s, int type);
     MathEdit* createNewVariable();
     Data *getData() { return m_data; }
     QString getResult() { return m_result; }
     void setResult(QString s) { m_result = s; }
     
-    bool childBeforeIsOperator(int32_t pos);
-    bool cursorIsDirectlyAfterOperatorOrAtBegin(int32_t pos);
-    bool cursorIsDirectlyAfterOther(int32_t pos);
+    bool childBeforeIsOperator(int64_t pos);
+    bool cursorIsDirectlyAfterOperatorOrAtBegin(int64_t pos);
+    bool cursorIsDirectlyAfterOther(int64_t pos);
     
-    int getMathFontSize() const { return m_mathFontSize; }
-    void setMathFontSize(int size);
+    int64_t getMathFontSize() const { return m_mathFontSize; }
+    void setMathFontSize(int64_t size);
     QString getFontName() const { return m_fontName; }
     void setFontName(QString s) { m_fontName = s; }
     qreal getSubScriptScale() const {return m_subScriptScale; }
@@ -194,7 +194,7 @@ protected:
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) override;
     bool isCommandKey(const int key);
     int getChunkType(QString chunk);
-    int32_t getChunkStart(int32_t pos);
+    int64_t getChunkStart(int64_t pos);
     void backspace();
     void del();
     virtual void leftArrow();
@@ -204,24 +204,24 @@ protected:
     virtual void upArrow();
     virtual void downArrow();
     void cursorPosUpdate();
-    virtual bool processContent(int32_t selBegin, int32_t selEnd);
+    virtual bool processContent(int64_t selBegin, int64_t selEnd);
     
     QString m_content;
-    int32_t m_cursorPos = 0;
+    int64_t m_cursorPos = 0;
     
     qreal textWidth(const QString &text);
     qreal subtextWidth(const QString &text);
     
-    int getCursorIndexForPosition(qreal x);
-    qreal getPositionForIndex(int id);
+    int64_t getCursorIndexForPosition(qreal x);
+    qreal getPositionForIndex(int64_t id);
     
     qreal getCenterHeight() { return m_centerHeight; }
     void setCenterHeight(qreal r) { m_centerHeight = r; }
     
     QList<MathEdit*> getContItems() const { return m_contItems; }
     
-    const qreal getPaddingH() const { return m_paddingH;}
-    const qreal getPaddingV() const { return m_paddingV;}
+    qreal getPaddingH() const { return m_paddingH;}
+    qreal getPaddingV() const { return m_paddingV;}
     
     
 private:
@@ -244,18 +244,18 @@ private:
     
     QFont m_font, m_subfont;
     QString m_fontName = "Liberation Serif";
-    int m_mathFontSize;
+    int64_t m_mathFontSize;
     qreal m_subScriptScale = 0.75;
     const qreal m_paddingH = 2.0, m_paddingV = 2.0;
     
     QTimer m_cursorTimer;
     bool m_cursorVisible = false;
     qreal m_cursorX, m_cursorY, m_cursorW, m_cursorH;
-    int32_t m_selectBegin = -1, m_selectEnd = -1, m_selectAnchor = -1;
+    int64_t m_selectBegin = -1, m_selectEnd = -1, m_selectAnchor = -1;
     QRectF getCursorRect() const { return QRectF(m_cursorX, m_cursorY, m_cursorW, m_cursorH);}
     
     QString getCurrentChunk();
-    QString getChunkAt(int32_t pos);
+    QString getChunkAt(int64_t pos);
     
     virtual void printContent();
     

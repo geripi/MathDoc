@@ -105,7 +105,7 @@ void MathEditFunction::paint(QPainter* painter, const QStyleOptionGraphicsItem* 
     QColor textColor = Qt::darkBlue;
     painter->setPen(QPen(textColor, 1, Qt::SolidLine));
     qreal textVPos = baseline() - fm.height()*0.5 + fm.ascent();
-    painter->drawText(0.0, textVPos, normStr);
+    painter->drawText(QPointF(0.0, textVPos), normStr);
     
     qreal leftParX = textW - 1;
     m_leftParenthesis->setPos(leftParX, 0);
@@ -118,7 +118,7 @@ void MathEditFunction::paint(QPainter* painter, const QStyleOptionGraphicsItem* 
     cursorPosUpdate();
     if (isCursorVisible()) { // && i == m_cursorPos) {
         painter->setPen(QPen(Qt::black, 1));
-        painter->drawLine(getCursorX()+1, getCursorY(), getCursorX()+1, getCursorH());
+        painter->drawLine(QPointF(getCursorX()+1, getCursorY()), QPointF(getCursorX()+1, getCursorH()));
         painter->setPen(QPen());
     }
 }
@@ -190,6 +190,7 @@ void MathEditFunction::keyPressEvent(QKeyEvent* event)
     const bool altPressed = event->modifiers() & Qt::AltModifier;
     const bool shiftPressed = event->modifiers() & Qt::ShiftModifier;
     const bool ctrlPressed = event->modifiers() & Qt::ControlModifier;
+    Q_UNUSED(ctrlPressed);
     
     QString charToInsert = event->text();
     int eventKey = event->key();
@@ -294,15 +295,15 @@ bool MathEditFunction::isPartOfFuncStr(QString testStr) {
     return b;
 }
 
-void MathEditFunction::insertTextAt(int32_t pos, const QString& inText) {
+void MathEditFunction::insertTextAt(int64_t pos, const QString& inText) {
     m_argument->insertTextAt(pos, inText);
 }
 
-void MathEditFunction::insertItemAt(int32_t pos, MathEdit *id) {
+void MathEditFunction::insertItemAt(int64_t pos, MathEdit *id) {
     m_argument->insertItemAt(pos,id);
 }
 
-void MathEditFunction::insertItemsAt(int32_t pos, QList<MathEdit*> list) {
+void MathEditFunction::insertItemsAt(int64_t pos, QList<MathEdit*> list) {
     m_argument->insertItemsAt(pos,list);
 }
 
@@ -334,7 +335,7 @@ QJsonObject MathEditFunction::toJson() const {
     object["type"] = type();
     object["content"] = m_content;
     object["argument"] = m_argument->toJson();
-    object["mathFontSize"] = getMathFontSize();
+    object["mathFontSize"] = static_cast<int>(getMathFontSize());
     
     QJsonArray childItemsArray;
     for(MathEdit *child:getContItems()) {

@@ -47,8 +47,9 @@ int main(int argc, char *argv[]) {
     // Use QElapsedTimer for a more robust delay that allows UI updates
     QElapsedTimer timer;
     timer.start();
-    const int delayMilliseconds = 2000; // 2 seconds
 /*    
+    const int delayMilliseconds = 2000; // 2 seconds
+    
     while (timer.elapsed() < delayMilliseconds) {
         app.processEvents();
     }

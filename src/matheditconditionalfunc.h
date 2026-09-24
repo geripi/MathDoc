@@ -62,7 +62,7 @@ protected:
     void keyPressEvent(QKeyEvent* event) override;
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
     void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
-    bool processContent(int32_t selBegin, int32_t selEnd) override { return true; }
+    bool processContent(int64_t selBegin, int64_t selEnd) override { Q_UNUSED(selBegin); Q_UNUSED(selEnd); return true; }
     
     bool isPartOfFuncStr(QString testStr);
     

@@ -29,7 +29,7 @@ MathEditLog::MathEditLog(Data *d, PageMathItem *parentPageMathItem, QGraphicsObj
     m_argument = new MathEdit(d, parentPageMathItem, this);
     m_base = new MathEdit(QString("10"),d, parentPageMathItem, this);
     //m_base = MathEditCreateNew::newMathEdit("10", MathEdit::MEConstant, d, parentPageMathItem, this);
-    m_base->setMathFontSize(getMathFontSize()*0.6);
+    m_base->setMathFontSize(qRound(static_cast<qreal>(getMathFontSize())*0.6));
     
     initializeParenthesis();
 }
@@ -40,6 +40,8 @@ MathEditLog::MathEditLog(QString text, Data *d, PageMathItem *parentPageMathItem
 }
 
 void MathEditLog::setFocus(Qt::FocusReason focusReason) {
+    Q_UNUSED(focusReason);
+    
     MathEdit *cashedChild = getCashedChild();
     if (cashedChild == m_argument && cashedChild->getRightArrowPressed()) { // leave this towards the right
         setCursorToEnd();
@@ -114,7 +116,7 @@ void MathEditLog::paint(QPainter* painter, const QStyleOptionGraphicsItem* optio
     QColor textColor = Qt::darkBlue;
     painter->setPen(QPen(textColor, 1, Qt::SolidLine));
     qreal textVPos = baseline() - fm.height()*0.5 + fm.ascent();
-    painter->drawText(0.0, textVPos, normStr);
+    painter->drawText(QPointF(0.0, textVPos), normStr);
     
     qreal leftParX = textW - 1 + m_base->getBoundingRectangle().width();
     m_leftParenthesis->setPos(leftParX, 0);
@@ -127,7 +129,7 @@ void MathEditLog::paint(QPainter* painter, const QStyleOptionGraphicsItem* optio
     cursorPosUpdate();
     if (isCursorVisible()) { // && i == m_cursorPos) {
         painter->setPen(QPen(Qt::black, 1));
-        painter->drawLine(getCursorX()+1, getCursorY(), getCursorX()+1, getCursorH());
+        painter->drawLine(QPointF(getCursorX()+1, getCursorY()), QPointF(getCursorX()+1, getCursorH()));
         painter->setPen(QPen());
     }
 }
@@ -180,6 +182,7 @@ void MathEditLog::keyPressEvent(QKeyEvent* event)
     const bool altPressed = event->modifiers() & Qt::AltModifier;
     const bool shiftPressed = event->modifiers() & Qt::ShiftModifier;
     const bool ctrlPressed = event->modifiers() & Qt::ControlModifier;
+    Q_UNUSED(ctrlPressed);
     
     QString charToInsert = event->text();
     int eventKey = event->key();
@@ -232,7 +235,7 @@ void MathEditLog::keyPressEvent(QKeyEvent* event)
     // It has to be in the m_content string, but is never drawn by paint().
     QString lastChar = "";
     m_content.remove("(");
-    if (!m_content.isEmpty()) { QString lastChar = m_content.last(1); }
+    if (!m_content.isEmpty()) { lastChar = m_content.last(1); }
     if (lastChar == "(" && getCursorPos() >= m_content.length()) setCursorTo(m_content.length() - 1);
     if (lastChar != "(") m_content.append("(");
     
@@ -265,15 +268,15 @@ bool MathEditLog::isPartOfFuncStr(QString testStr) {
     return b;
 }
 
-void MathEditLog::insertTextAt(int32_t pos, const QString& inText) {
+void MathEditLog::insertTextAt(int64_t pos, const QString& inText) {
     m_argument->insertTextAt(pos, inText);
 }
 
-void MathEditLog::insertItemAt(int32_t pos, MathEdit *id) {
+void MathEditLog::insertItemAt(int64_t pos, MathEdit *id) {
     m_argument->insertItemAt(pos,id);
 }
 
-void MathEditLog::insertItemsAt(int32_t pos, QList<MathEdit*> list) {
+void MathEditLog::insertItemsAt(int64_t pos, QList<MathEdit*> list) {
     m_argument->insertItemsAt(pos,list);
 }
 
@@ -291,7 +294,7 @@ QJsonObject MathEditLog::toJson() const {
     object["content"] = m_content;
     object["argument"] = m_argument->toJson();
     object["base"] = m_base->toJson();
-    object["mathFontSize"] = getMathFontSize();
+    object["mathFontSize"] = static_cast<int>(getMathFontSize());
     
     QJsonArray childItemsArray;
     for(MathEdit *child:getContItems()) {

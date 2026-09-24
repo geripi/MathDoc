@@ -35,11 +35,11 @@ public:
     QJsonObject toJson() const override; //
     void fromJson(const QJsonObject& object) override; //
     
-    void compute(const MathVariable& boolMask = MathVariable()) override { }
+    void compute(const MathVariable& boolMask = MathVariable()) override { Q_UNUSED(boolMask); }
     
 protected:
     void keyPressEvent(QKeyEvent* event) override;
-    bool processContent(int32_t selBegin, int32_t selEnd) override { return true; }
+    bool processContent(int64_t selBegin, int64_t selEnd) override { Q_UNUSED(selBegin); Q_UNUSED(selEnd); return true; }
     
     
 private:

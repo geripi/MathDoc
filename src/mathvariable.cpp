@@ -40,7 +40,7 @@ MathVariable::MathVariable(const QList<qreal>& values, const QList<qreal>& unit)
 // --- Getters ---
 const QList<qreal>& MathVariable::values() const { return m_values; }
 const QList<qreal>& MathVariable::unit() const { return m_unit; }
-const qreal MathVariable::getUnitAt(int i) const {
+qreal MathVariable::getUnitAt(int64_t i) const {
     if (m_unit.size() != 7) { throw std::invalid_argument("Unit vector size must be 7."); }
     if (i<0 || i>=7) { throw std::invalid_argument(QString("Unit index must be 0 to 6! Index given is %1!").arg(i).toStdString()); }
     return m_unit[i];
@@ -52,7 +52,7 @@ void MathVariable::setUnit(const QList<qreal>& unit) {
     if (unit.size() != 7) { throw std::invalid_argument("Unit vector size must be 7."); }
     m_unit = unit;
 }
-void MathVariable::setUnitAt(int i, qreal unitExponent) {
+void MathVariable::setUnitAt(int64_t i, qreal unitExponent) {
     if (m_unit.size() != 7) { throw std::invalid_argument("Unit vector size must be 7."); }
     if (i<0 || i>=7) { throw std::invalid_argument(QString("Unit index must be 0 to 6! Index given is %1!").arg(i).toStdString()); }
     m_unit[i] = unitExponent;
@@ -92,7 +92,7 @@ bool MathVariable::isDimensionless() const {
 QString MathVariable::unitString() const {
     static const QStringList baseUnits = { "m", "kg", "s", "A", "K", "mol", "cd" };
     QStringList parts;
-    for (int i = 0; i < m_unit.size() && i < baseUnits.size(); ++i) {
+    for (int64_t i = 0; i < m_unit.size() && i < baseUnits.size(); ++i) {
         if (m_unit[i] != 0) {
             parts << QString("%1^%2").arg(baseUnits[i]).arg(m_unit[i]);
         }
@@ -112,7 +112,7 @@ bool MathVariable::operator==(const MathVariable& other) const {
         return false; // length mismatch
     }
     
-    for (int i = 0; i < m_values.size(); ++i) {
+    for (int64_t i = 0; i < m_values.size(); ++i) {
         if (!qFuzzyCompare(m_values[i], other.m_values[i])) {
             return false;
         }
@@ -146,7 +146,7 @@ QDebug operator<<(QDebug dbg, const MathVariable& var)
     dbg.nospace() << "Var(v=[";
     
     const QList<qreal>& vals = var.values();
-    for (int i = 0; i < vals.size(); ++i) {
+    for (int64_t i = 0; i < vals.size(); ++i) {
         dbg.nospace() << vals[i];
         if (i < vals.size() - 1)
             dbg.nospace() << ", ";

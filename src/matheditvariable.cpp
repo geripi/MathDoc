@@ -56,11 +56,11 @@ void MathEditVariable::keyPressEvent(QKeyEvent* event)
     if (charToInsert=="*") charToInsert = QString(cdotChar);
     
     if (charToInsert.length() == 1 && !isCommandKey(eventKey)) { // to prevent ' ' chars to be added when the shift key is pressed for capital letters
-        QString allowedCharacters = QString("ABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789§$€?!.;\\abcdefghijklmnopqrstuvwxyz");
-        for (QChar c: latinToGreek.values()) { allowedCharacters.append(c); }
+        QString allowedChars = QString("ABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789§$€?!.;\\abcdefghijklmnopqrstuvwxyz");
+        for (QChar c: latinToGreek.values()) { allowedChars.append(c); }
         QString numCharacters = QString("0123456789.");
         
-        if (allowedCharacters.contains(charToInsert) && !(numCharacters.contains(charToInsert) && m_cursorPos == 0)) {
+        if (allowedChars.contains(charToInsert) && !(numCharacters.contains(charToInsert) && m_cursorPos == 0)) {
             insertText(charToInsert);
             emit getParentPageMathItem()->itemDataChanged();
         } else if (charToInsert == "-" && m_cursorPos == 0) {
@@ -128,7 +128,7 @@ QJsonObject MathEditVariable::toJson() const
     QJsonObject object;
     object["type"] = type();
     object["content"] = m_content;
-    object["mathFontSize"] = getMathFontSize();
+    object["mathFontSize"] = static_cast<int>(getMathFontSize());
     
     QJsonArray childItemsArray;
     for(MathEdit *child: getContItems()) {
@@ -156,6 +156,8 @@ void MathEditVariable::setValue(MathVariable m) {
 }
 
 void MathEditVariable::compute(const MathVariable& boolMask) {
+    Q_UNUSED(boolMask);
+    
     setValue(getData()->getValue(getContent()));
     if (std::numeric_limits<qreal>::max() == getValue().first()) {
         

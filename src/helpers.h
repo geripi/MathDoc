@@ -223,9 +223,8 @@ inline bool canConvertToMathVariable(const QString &str) { // 0,3,100 is a list 
     QStringList list = str.split(',', Qt::SkipEmptyParts);
     if ( !(list.size() == 3 || list.size() == 1) ) return false; // no 3 or 1 entries --> not a MathVariable
     bool canConvertToDouble;
-    qreal myReal;
     for (QString s: list) {
-        myReal = s.toDouble(&canConvertToDouble);
+        s.toDouble(&canConvertToDouble);
         if ( !canConvertToDouble ) return false;
     }
     return true;
@@ -244,10 +243,10 @@ inline MathVariable convertToMathVariable(const QString &str) {
             end = list[1].toDouble();
             n = qRound(list[2].toDouble());
             if (n<2) n = 2;
-            qreal delta = (end - start) / (n - 1);
+            qreal delta = (end - start) / static_cast<qreal>(n - 1);
             res.reserve(n);
             for(long long i = 0; i<n; i++) {
-                res.append(start + i*delta);
+                res.append(start + static_cast<qreal>(i)*delta);
             }
         }
     }
@@ -514,6 +513,8 @@ inline MathVariable sub(const MathVariable& lhs, const qreal rhs, const MathVari
 
 inline MathVariable log(const MathVariable& x, const MathVariable& a, const MathVariable& boolMask = MathVariable())
 {
+    Q_UNUSED(boolMask);
+    
     MathVariable result;
     if (a.size() != 1) { // invalid base: return a list with max qreal
         throw std::invalid_argument("Invalid base in 'log' operation: Base is a list of values or empty.");

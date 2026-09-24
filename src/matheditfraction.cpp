@@ -61,7 +61,7 @@ void MathEditFraction::paint(QPainter* painter, const QStyleOptionGraphicsItem* 
     
     QColor textColor = Qt::black;
     painter->setPen(QPen(textColor, 1, Qt::SolidLine));
-    painter->drawLine(0.0, 0.0, getBoundingRectangle().width(), 0.0);
+    painter->drawLine(QPointF(0.0, 0.0), QPointF(getBoundingRectangle().width(), 0.0));
     
 }
 
@@ -104,15 +104,15 @@ void MathEditFraction::compute(const MathVariable& boolMask) {
     setValue(div(m_numerator->getValue(), m_denominator->getValue(), boolMask));
 }
 
-void MathEditFraction::insertTextAt(int32_t pos, const QString& inText) {
+void MathEditFraction::insertTextAt(int64_t pos, const QString& inText) {
     m_numerator->insertTextAt(pos, inText);
 }
 
-void MathEditFraction::insertItemAt(int32_t pos, MathEdit *id) {
+void MathEditFraction::insertItemAt(int64_t pos, MathEdit *id) {
     m_numerator->insertItemAt(pos,id);
 }
 
-void MathEditFraction::insertItemsAt(int32_t pos, QList<MathEdit*> list) {
+void MathEditFraction::insertItemsAt(int64_t pos, QList<MathEdit*> list) {
     m_numerator->insertItemsAt(pos,list);
 }
 
@@ -147,6 +147,8 @@ void MathEditFraction::setCursorToEnd(){
 }
 
 void MathEditFraction::setFocus(Qt::FocusReason focusReason) {
+    Q_UNUSED(focusReason);
+    
     MathEdit *cashedChild = getCashedChild();
     if (cashedChild == m_denominator && cashedChild->getRightArrowPressed()) { // leave this towards the right
         rightArrow();
@@ -169,9 +171,13 @@ void MathEditFraction::setFocus(Qt::FocusReason focusReason) {
     setCashedChild(nullptr);
 }
 void MathEditFraction::setFocusToChild1(Qt::FocusReason focusReason) {
+    Q_UNUSED(focusReason);
+    
     m_numerator->setFocus();
 }
 void MathEditFraction::setFocusToChild2(Qt::FocusReason focusReason) {
+    Q_UNUSED(focusReason);
+    
     m_denominator->setFocus();
 }
 bool MathEditFraction::hasDescendantFocus() const {
@@ -188,7 +194,7 @@ QJsonObject MathEditFraction::toJson() const {
     object["content"] = m_content;
     object["numerator"] = m_numerator->toJson();
     object["denominator"] = m_denominator->toJson();
-    object["mathFontSize"] = getMathFontSize();
+    object["mathFontSize"] = static_cast<int>(getMathFontSize());
     
     QJsonArray childItemsArray;
     for(MathEdit *child:getContItems()) {

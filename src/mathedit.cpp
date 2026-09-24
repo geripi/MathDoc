@@ -40,9 +40,9 @@ MathEdit::MathEdit(Data *d, PageMathItem *parentPageMathItem, QGraphicsObject* p
     } else {
         m_mathFontSize = 14;
     }
-    QFont font(m_fontName, m_mathFontSize);
+    QFont font(m_fontName, static_cast<int>(m_mathFontSize));
     m_font = font;
-    QFont subfont(m_fontName, m_mathFontSize*m_subScriptScale);
+    QFont subfont(m_fontName, qRound(static_cast<qreal>(m_mathFontSize)*m_subScriptScale));
     m_subfont = subfont;
     
     setSelected(true);
@@ -113,7 +113,7 @@ void MathEdit::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
         
     int32_t childNum = 0, strNum = 0;
     QStringList contList = m_content.split('#', Qt::SkipEmptyParts);
-    qreal currentX = 0.0; uint32_t posOffset = 0;
+    qreal currentX = 0.0;
     qreal currentY = 0.0;//baseline();
     if(!m_content.isEmpty()) {
         for(int32_t t: typeOfItem) {
@@ -131,7 +131,7 @@ void MathEdit::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
                 painter->setPen(QPen(textColor, 1, Qt::SolidLine)); painter->setFont(getFont());
                 //painter->drawText(normRect, normStr);
                 qreal textVPos = baseline() - fm.height()*0.5 + fm.ascent();
-                painter->drawText(currentX, textVPos, normStr);
+                painter->drawText(QPointF(currentX, textVPos), normStr);
                 currentX += textWidth(normStr);
                 
                 QRectF subRect(currentX, currentY+fm.height()*0.5, subtextWidth(subStr), subFm.height());
@@ -139,7 +139,7 @@ void MathEdit::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
                 //painter->drawRect(subRect);
                 painter->setPen(QPen(textColor, 1, Qt::SolidLine)); painter->setFont(getSubFont());
                 //painter->drawText(subRect, subStr);
-                painter->drawText(currentX, textVPos + fm.descent(), subStr);
+                painter->drawText(QPointF(currentX, textVPos + fm.descent()), subStr);
                 currentX += subtextWidth(subStr);
             }
             if (t == isChild) {
@@ -156,7 +156,7 @@ void MathEdit::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
             painter->setPen(QPen(Qt::black, 1, Qt::SolidLine)); painter->setFont(getFont());
             QRectF resultRect(currentX, currentY, textWidth(m_result), fm.height());
             qreal textVPos = baseline() - fm.height()*0.5 + fm.ascent();
-            painter->drawText(currentX, textVPos, m_result);
+            painter->drawText(QPointF(currentX, textVPos), m_result);
             currentX += textWidth(m_result);
         }
         if (m_unit) {
@@ -167,7 +167,7 @@ void MathEdit::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
     cursorPosUpdate();
     if (m_cursorVisible) { // && i == m_cursorPos) {
         painter->setPen(QPen(Qt::black, 1));
-        painter->drawLine(m_cursorX+1, m_cursorY, m_cursorX+1, m_cursorH);
+        painter->drawLine(QPointF(m_cursorX+1, m_cursorY), QPointF(m_cursorX+1, m_cursorH));
         painter->setPen(QPen());
     }
     
@@ -276,6 +276,8 @@ qreal MathEdit::baseline() const {
 }
 
 qreal MathEdit::verticalOffset(MathEdit *referenceItem) const {
+    Q_UNUSED(referenceItem);
+    
     QFontMetricsF fm(getFont());
     return -0.0 * fm.ascent();
 }
@@ -284,7 +286,7 @@ QJsonObject MathEdit::toJson() const {
     QJsonObject object;
     object["type"] = type();
     object["content"] = m_content;
-    object["mathFontSize"] = m_mathFontSize;
+    object["mathFontSize"] = static_cast<int>(m_mathFontSize);
     if (m_unit) {
         object["unit"] = m_unit->toJson();
     }
@@ -361,8 +363,8 @@ void MathEdit::compute(const MathVariable& boolMask) {
         
         // let's see if this is the rootMathLeaf()
         bool isRoot(this == m_parentPageMathItem->rootMathLeaf());
-        bool isValidRoot = false, isAssign = false, isResult = false;
-        int32_t VariableID = -1;
+        bool isValidRoot = false, isAssign = false, isResult = false; Q_UNUSED(isValidRoot);
+        int32_t VariableID = -1; Q_UNUSED(VariableID);
         QList<int32_t> AssignIDs;
         QList<int32_t> ResultIDs;
         QList<MathEdit*> mathExpression;
@@ -419,7 +421,7 @@ void MathEdit::compute(const MathVariable& boolMask) {
         
         // 1) calculate all exponentials first:
         if (mathExpression.length()>=2) {
-            for (int32_t i = mathExpression.length()-1; i >= 0; i--) {
+            for (int64_t i = mathExpression.length()-1; i >= 0; i--) {
                 if (mathExpression.at(i)->type() == MEExponent) {
                     if (i > 0) {
                         if (mathExpression.at(i-1)->type() != MEOperator) {
@@ -437,7 +439,7 @@ void MathEdit::compute(const MathVariable& boolMask) {
         
         // 2) calculate all multiplications second:
         if (mathExpression.length()>=3) {
-            for (int32_t i = mathExpression.length()-2; i >= 0; i--) {
+            for (int64_t i = mathExpression.length()-2; i >= 0; i--) {
                 if (mathExpression.at(i)->type() == MEOperator &&
                     mathExpression.at(i)->getContent() == QString(cdotChar)) {
                     if (i > 0 && i < mathExpression.length()-1) {
@@ -456,7 +458,7 @@ void MathEdit::compute(const MathVariable& boolMask) {
         
         // 3) calculate all additions and subtractions third:
         if (mathExpression.length()>=3) {
-            for (int32_t i = mathExpression.length()-2; i >= 0; i--) {
+            for (int64_t i = mathExpression.length()-2; i >= 0; i--) {
                 if (mathExpression.at(i)->type() == MEOperator &&
                     (mathExpression.at(i)->getContent() == "+" || mathExpression.at(i)->getContent() == "-")) {
                     if (i > 0 && i < mathExpression.length()-1) {
@@ -479,7 +481,7 @@ void MathEdit::compute(const MathVariable& boolMask) {
         
         // 4) calculate all comparisons fourth:
         if (mathExpression.length()>=3) {
-            for (int32_t i = mathExpression.length()-2; i >= 0; i--) {
+            for (int64_t i = mathExpression.length()-2; i >= 0; i--) {
                 QString opChar = mathExpression.at(i)->getContent();
                 if (mathExpression.at(i)->type() == MEOperator &&
                     (opChar == "<" || opChar == smallerEqual ||
@@ -508,7 +510,7 @@ void MathEdit::compute(const MathVariable& boolMask) {
         
         // 5) calculate all boolean NOT fifth:
         if (mathExpression.length()>=2) {
-            for (int32_t i = mathExpression.length()-2; i >= 0; i--) {
+            for (int64_t i = mathExpression.length()-2; i >= 0; i--) {
                 QString opChar = mathExpression.at(i)->getContent();
                 if (mathExpression.at(i)->type() == MEOperator &&
                     (opChar == "!")) {
@@ -528,7 +530,7 @@ void MathEdit::compute(const MathVariable& boolMask) {
         
         // 6) calculate all boolean AND sixth:
         if (mathExpression.length()>=3) {
-            for (int32_t i = mathExpression.length()-2; i >= 0; i--) {
+            for (int64_t i = mathExpression.length()-2; i >= 0; i--) {
                 QString opChar = mathExpression.at(i)->getContent();
                 if (mathExpression.at(i)->type() == MEOperator &&
                     (opChar == "&")) {
@@ -549,7 +551,7 @@ void MathEdit::compute(const MathVariable& boolMask) {
         
         // 7) calculate all boolean OR seventh:
         if (mathExpression.length()>=3) {
-            for (int32_t i = mathExpression.length()-2; i >= 0; i--) {
+            for (int64_t i = mathExpression.length()-2; i >= 0; i--) {
                 QString opChar = mathExpression.at(i)->getContent();
                 if (mathExpression.at(i)->type() == MEOperator &&
                     (opChar == "|")) {
@@ -596,8 +598,8 @@ void MathEdit::compute(const MathVariable& boolMask) {
                         //                           aIDs: -------0----2----4
                         //                           aIDs: -------v----v----v
         if (isAssign) { // could be a series of assignments like [a := b := c := 55]
-            for (int32_t i = AssignIDs.length()-1; i>=0; i--) {
-                int32_t aID = AssignIDs.at(i);
+            for (int64_t i = AssignIDs.length()-1; i>=0; i--) {
+                int64_t aID = AssignIDs.at(i);
                 if (getContItems().at(aID-1)->type() == MEVariable) {
                     getContItems().at(aID-1)->setValue(getValue());
                     // register the variable name with m_data:
@@ -614,7 +616,6 @@ void MathEdit::compute(const MathVariable& boolMask) {
             if (!m_unit) m_unit = new MathEdit(getData(), getParentPageMathItem(), this);
             m_unit->setIsUsedAsUnit(true);
             
-            int32_t i = ResultIDs.last();
             if (!(getValue().isEmpty() || m_result == "UNDEFINED")) {
                 m_result = resultString(true);
             } else {
@@ -704,14 +705,14 @@ void MathEdit::setCursorLeftOf(MathEdit* child) {
     m_cursorPos = k;
 }
 
-MathEdit* MathEdit::getChildAtPos(int32_t pos){
-    int32_t id = getChildIndexAtPos(pos);
+MathEdit* MathEdit::getChildAtPos(int64_t pos){
+    int64_t id = getChildIndexAtPos(pos);
     if (id >=0) return m_contItems[id];
     else return nullptr;
 }
 
-int MathEdit::getChildIndexAtPos(int32_t pos){ //abc#def#
-    int count = -1, i = 0;
+int64_t MathEdit::getChildIndexAtPos(int64_t pos){ //abc#def#
+    int64_t count = -1, i = 0;
     for (QChar c: m_content) {
         if (c == '#') {
             count++;
@@ -723,8 +724,8 @@ int MathEdit::getChildIndexAtPos(int32_t pos){ //abc#def#
     else return -1;
 }
 
-std::pair<int32_t, int32_t> MathEdit::getChildRangeIDsAt(int32_t begin, int32_t length) { // begin, end like when selected
-    int32_t idBegin, len;
+std::pair<int64_t, int64_t> MathEdit::getChildRangeIDsAt(int64_t begin, int64_t length) { // begin, end like when selected
+    int64_t idBegin, len;
     
     QString frontStr = m_content.mid(0,begin);
     QString selStr = m_content.mid(begin, length);
@@ -761,14 +762,17 @@ void MathEdit::focusOutEvent(QFocusEvent* event) {
 
 void MathEdit::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
+    Q_UNUSED(event);
 }
 
 void MathEdit::hoverMoveEvent(QGraphicsSceneHoverEvent* event)
 {
+    Q_UNUSED(event);
 }
 
 void MathEdit::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
 {
+    Q_UNUSED(event);
 }
 
 void MathEdit::keyPressEvent(QKeyEvent* event)
@@ -879,6 +883,7 @@ void MathEdit::keyPressEvent(QKeyEvent* event)
                 if (m_selectBegin >= 0) m_cursorPos = m_selectEnd; // set the cursor to end of selection for consistancy
                 // get everything inside the selection to be an item
                 bool processOK = processContent(m_selectBegin, m_selectEnd);
+                Q_UNUSED(processOK);
                 
                 MathEdit *newChild;
                 if (m_selectBegin >= 0) { //There is a selection active, put that into the numerator
@@ -902,11 +907,11 @@ void MathEdit::keyPressEvent(QKeyEvent* event)
             insertText(charToInsert);
             
             QString chunk = getCurrentChunk();
-            int32_t chunkStart = getChunkStart(m_cursorPos);
-            int32_t chunkEnd = chunkStart + chunk.length();
-            int chunkType = getChunkType(chunk);
+            int64_t chunkStart = getChunkStart(m_cursorPos);
+            int64_t chunkEnd = chunkStart + chunk.length();
+            int chunkType = static_cast<int>(getChunkType(chunk));
             if (chunkType == MEFunction || chunkType == MERoot || chunkType == MELog) {
-                int32_t startDel =0, endDel = 0; bool overlap = false;
+                int64_t startDel =0, endDel = 0; bool overlap = false;
                 MathEdit *cI = MathEditCreateNew::newMathEdit(chunk, chunkType, m_data, m_parentPageMathItem, this);
                 if (m_selectBegin >= 0 && m_selectBegin != m_selectEnd) {
                     m_selectBegin++; m_selectEnd++; m_selectAnchor++;
@@ -940,8 +945,8 @@ void MathEdit::keyPressEvent(QKeyEvent* event)
             }
         } else if (charToInsert == "{") { // Conditional function
             QString chunk = getCurrentChunk();
-            int32_t chunkStart = getChunkStart(m_cursorPos);
-            int chunkType = getChunkType(chunk);
+            int64_t chunkStart = getChunkStart(m_cursorPos);
+            int chunkType = static_cast<int>(getChunkType(chunk));
             if (chunkType) {
                 MathEdit *cI = MathEditCreateNew::newMathEdit(chunk, chunkType, m_data, m_parentPageMathItem, this);
                 insertItem(cI);
@@ -964,8 +969,8 @@ void MathEdit::keyPressEvent(QKeyEvent* event)
         } else if (allowedCharacters.contains(charToInsert)) {
             insertText(charToInsert);
             QString chunk = getCurrentChunk();
-            int32_t chunkStart = getChunkStart(m_cursorPos);
-            int chunkType = getChunkType(chunk);
+            int64_t chunkStart = getChunkStart(m_cursorPos);
+            int chunkType = static_cast<int>(getChunkType(chunk));
             if (chunkType) {
                 MathEdit *cI = MathEditCreateNew::newMathEdit(chunk, chunkType, m_data, m_parentPageMathItem, this);
                 
@@ -1036,7 +1041,7 @@ bool MathEdit::shiftDel() {
     return true;
 }
 
-QString MathEdit::getChunkAt(int32_t pos) {
+QString MathEdit::getChunkAt(int64_t pos) {
     const QString s = m_content;
     if (pos < 0 || pos > s.size()) return QString();
     
@@ -1054,11 +1059,11 @@ QString MathEdit::getCurrentChunk() {
     return getChunkAt(m_cursorPos);
 }
 
-int32_t MathEdit::getChunkStart(int32_t pos) {
+int64_t MathEdit::getChunkStart(int64_t pos) {
     const QString s = m_content;
     if (pos < 0 || pos > s.size()) return -1;
     
-    const int32_t start = s.lastIndexOf('#', pos - 1) + 1;
+    const int64_t start = s.lastIndexOf('#', pos - 1) + 1;
     return start;
 }
 
@@ -1066,29 +1071,29 @@ bool MathEdit::processAllContent() {
     return processContent(0, m_content.length());
 }
 
-bool MathEdit::processContent(int32_t selBegin, int32_t selEnd) {
+bool MathEdit::processContent(int64_t selBegin, int64_t selEnd) {
     // get everything inside the selection to be an item, start at the last position
     bool isOK = true, isSelectionToBeProcessed = false;
     
     // check if we have something selected that we are processing here
     if (selBegin == m_selectBegin && selEnd == m_selectEnd) isSelectionToBeProcessed = true;
-    int32_t i = selEnd - 1; // set counter to end of selection
+    int64_t i = selEnd - 1; // set counter to end of selection
     while (i >= selBegin) {
         if (m_content.at(i) == '#') {
             --i;
             continue;
         }
         // here we found the end of a chunk
-        int32_t chunkEnd = i+1;
+        int64_t chunkEnd = i+1;
         // search for begin of the chunk
         while (i > selBegin && m_content.at(i-1) != '#') --i;
-        int32_t chunkBegin = i;
+        int64_t chunkBegin = i;
         
         QString chunk = m_content.mid(chunkBegin,chunkEnd-chunkBegin);
-        int32_t chunkTyp = getChunkType(chunk);
+        int chunkTyp = static_cast<int>(getChunkType(chunk));
         if (!chunkTyp) chunkTyp = MEVariable;
         
-        int32_t selB = selBegin, selE = selEnd, selAnc = m_selectAnchor;
+        int64_t selB = selBegin, selE = selEnd, selAnc = m_selectAnchor;
         //MathEdit *cME = createNewItem(chunk, MEVariable);
         MathEdit *cME = MathEditCreateNew::newMathEdit(chunk, chunkTyp, m_data, m_parentPageMathItem, this);
         if (cME) {
@@ -1128,7 +1133,7 @@ void MathEdit::mousePressEvent(QGraphicsSceneMouseEvent* event) {
 void MathEdit::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
     if (event->buttons() & Qt::LeftButton) {
-        int mousePos = getCursorIndexForPosition(event->pos().x());
+        int64_t mousePos = getCursorIndexForPosition(event->pos().x());
         m_selectBegin = std::min(m_selectAnchor, mousePos);
         m_selectEnd   = std::max(m_selectAnchor, mousePos);
         event->accept();
@@ -1147,6 +1152,7 @@ void MathEdit::mouseReleaseEvent(QGraphicsSceneMouseEvent* event) {
 
 void MathEdit::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
 {
+    Q_UNUSED(event);
 }
 
 
@@ -1162,11 +1168,11 @@ void MathEdit::insertText(const QString& inText) {
     insertTextAt(m_cursorPos, inText);
 }
 
-void MathEdit::insertTextAt(int32_t pos, const QString& inText) {
+void MathEdit::insertTextAt(int64_t pos, const QString& inText) {
     QString text = inText;
     if (pos > m_content.length()) pos = m_content.length();
     if(pos>0){
-        if (m_content.at(pos-1) == "\\") {
+        if (m_content.at(pos-1) == QChar('\\')) {
             m_content.removeAt(pos-1);
             m_cursorPos--; pos--;
             QString str = getGreekCharacter(inText);
@@ -1186,10 +1192,10 @@ void MathEdit::insertItems(QList<MathEdit*> list) {
     insertItemsAt(m_cursorPos, list);
 }
 
-void MathEdit::insertItemAt(int32_t pos, MathEdit *id) {
+void MathEdit::insertItemAt(int64_t pos, MathEdit *id) {
     // Look for all positions that have a '#' character
-    QList<int> positions;
-    int index = m_content.indexOf('#', 0);
+    QList<int64_t> positions;
+    int64_t index = m_content.indexOf('#', 0);
     while (index != -1) {
         positions.append(index);
         // Advance by 1 to find overlapping matches, or by searchTerm.length() for non-overlapping
@@ -1200,8 +1206,8 @@ void MathEdit::insertItemAt(int32_t pos, MathEdit *id) {
         m_contItems.append(id);
     }
     else {
-        int32_t count = 0;
-        for(int32_t p: positions) {
+        int64_t count = 0;
+        for(int64_t p: positions) {
             if (p < pos) count++;
             else break;
         }
@@ -1211,10 +1217,10 @@ void MathEdit::insertItemAt(int32_t pos, MathEdit *id) {
     id->setParentItem(this);
 }
 
-void MathEdit::insertItemsAt(int32_t pos, QList<MathEdit*> list) {
+void MathEdit::insertItemsAt(int64_t pos, QList<MathEdit*> list) {
     // Look for all positions that have a '#' character
-    QList<int> positions;
-    int index = m_content.indexOf('#', 0);
+    QList<int64_t> positions;
+    int64_t index = m_content.indexOf('#', 0);
     while (index != -1) {
         positions.append(index);
         // Advance by 1 to find overlapping matches, or by searchTerm.length() for non-overlapping
@@ -1227,8 +1233,8 @@ void MathEdit::insertItemsAt(int32_t pos, QList<MathEdit*> list) {
         }
     }
     else {
-        int32_t count = 0;
-        for(int32_t p: positions) {
+        int64_t count = 0;
+        for(int64_t p: positions) {
             if (p < pos) count++;
             else break;
         }
@@ -1243,8 +1249,8 @@ void MathEdit::insertItemsAt(int32_t pos, QList<MathEdit*> list) {
     
 }
 
-MathEdit* MathEdit::createNewItem(QString s, int Type) {
-    MathEdit *cI = MathEditCreateNew::newMathEdit(s, Type, m_data, m_parentPageMathItem, this);
+MathEdit* MathEdit::createNewItem(QString s, int type) {
+    MathEdit *cI = MathEditCreateNew::newMathEdit(s, type, m_data, m_parentPageMathItem, this);
     insertItem(cI);
     insertText("#");
     cI->initialize();
@@ -1253,15 +1259,15 @@ MathEdit* MathEdit::createNewItem(QString s, int Type) {
     return cI;
 }
 
-MathEdit* MathEdit::createNewVariableAndItem(QString s, int Type) {
+MathEdit* MathEdit::createNewVariableAndItem(QString s, int type) {
     QString chunk = getCurrentChunk();
-    int32_t chunkStart = getChunkStart(m_cursorPos);
+    int64_t chunkStart = getChunkStart(m_cursorPos);
     
     MathEdit *cI = MathEditCreateNew::newMathEdit(chunk, MEVariable, m_data, m_parentPageMathItem, this);
     insertItem(cI);
     insertText("#");
 
-    MathEdit *cO = MathEditCreateNew::newMathEdit(s, Type, m_data, m_parentPageMathItem, this);
+    MathEdit *cO = MathEditCreateNew::newMathEdit(s, type, m_data, m_parentPageMathItem, this);
     insertItem(cO);
     insertText("#");
     
@@ -1275,7 +1281,7 @@ MathEdit* MathEdit::createNewVariableAndItem(QString s, int Type) {
 
 MathEdit* MathEdit::createNewVariable() {
     QString chunk = getCurrentChunk();
-    int32_t chunkStart = getChunkStart(m_cursorPos);
+    int64_t chunkStart = getChunkStart(m_cursorPos);
     MathEdit *cI = MathEditCreateNew::newMathEdit(chunk, MEVariable, m_data, m_parentPageMathItem, this);
     insertItem(cI);
     m_content.remove(chunkStart, chunk.length());
@@ -1287,7 +1293,7 @@ MathEdit* MathEdit::createNewVariable() {
     return cI;
 }
 
-bool MathEdit::childBeforeIsOperator(int32_t pos){
+bool MathEdit::childBeforeIsOperator(int64_t pos){
     bool b = false;
     if (pos > 0) {
         MathEdit *child = getChildAtPos(pos-1); // see what type the previous child is
@@ -1298,7 +1304,7 @@ bool MathEdit::childBeforeIsOperator(int32_t pos){
     return b;
 }
 
-bool MathEdit::cursorIsDirectlyAfterOperatorOrAtBegin(int32_t pos){
+bool MathEdit::cursorIsDirectlyAfterOperatorOrAtBegin(int64_t pos){
     bool b = false;
     if (pos>0) {
         if(m_content.at(pos-1) == '#' && childBeforeIsOperator(pos)) {
@@ -1310,7 +1316,7 @@ bool MathEdit::cursorIsDirectlyAfterOperatorOrAtBegin(int32_t pos){
     return b;
 }
 
-bool MathEdit::cursorIsDirectlyAfterOther(int32_t pos){
+bool MathEdit::cursorIsDirectlyAfterOther(int64_t pos){
     bool b = false;
     if (m_cursorPos>0) {
         if(m_content.at(m_cursorPos-1) == '#' && !childBeforeIsOperator(pos)) {
@@ -1320,13 +1326,13 @@ bool MathEdit::cursorIsDirectlyAfterOther(int32_t pos){
     return b;
 }
 
-void MathEdit::setMathFontSize(int size) {
+void MathEdit::setMathFontSize(int64_t size) {
     if (size<7) m_mathFontSize = 7;
     else m_mathFontSize = size;
     
-    QFont font(m_fontName, m_mathFontSize);
+    QFont font(m_fontName, static_cast<int>(m_mathFontSize));
     m_font = font;
-    QFont subfont(m_fontName, m_mathFontSize*m_subScriptScale);
+    QFont subfont(m_fontName, qRound(static_cast<qreal>(m_mathFontSize)*m_subScriptScale));
     m_subfont = subfont;
 }
 
@@ -1335,10 +1341,12 @@ void MathEdit::insertFnString(QKeyEvent* event) {
 }
 
 QString MathEdit::resultString(bool units) {
+    Q_UNUSED(units);
+    
     QString resStr = "";
     // Check if we are in a "display result" MathEdit
-    int32_t resOperatorID = -1;
-    for (int32_t i = getContItems().length()-1; i>0; i--) {
+    int64_t resOperatorID = -1;
+    for (int64_t i = getContItems().length()-1; i>0; i--) {
         MathEdit *m = getContItems().at(i);
         if (m->type() == MEOperator && m->getContent() == "=") {
             resOperatorID = i;
@@ -1352,14 +1360,14 @@ QString MathEdit::resultString(bool units) {
         QList<qreal> manualUnits = m_unit->getValue().unit();
         qreal manualMultiplicator = 1.0 / m_unit->getValue().first();
         MathVariable value = getValue();
-        QList<qreal> units = value.unit();    // unit exponents
-        QList<qreal> unresolvedUnits = {units[0] - manualUnits[0],
-                                        units[1] - manualUnits[1],
-                                        units[2] - manualUnits[2],
-                                        units[3] - manualUnits[3],
-                                        units[4] - manualUnits[4],
-                                        units[5] - manualUnits[5],
-                                        units[6] - manualUnits[6]
+        QList<qreal> vunits = value.unit();    // unit exponents
+        QList<qreal> unresolvedUnits = {vunits[0] - manualUnits[0],
+                                        vunits[1] - manualUnits[1],
+                                        vunits[2] - manualUnits[2],
+                                        vunits[3] - manualUnits[3],
+                                        vunits[4] - manualUnits[4],
+                                        vunits[5] - manualUnits[5],
+                                        vunits[6] - manualUnits[6]
                                        };
         
         QString valStr = QString();
@@ -1469,18 +1477,18 @@ void MathEdit::cursorPosUpdate() {
     }
 }
 
-int MathEdit::getCursorIndexForPosition(qreal x) {
+int64_t MathEdit::getCursorIndexForPosition(qreal x) {
     
     QFontMetricsF fm(m_font);
     QFontMetricsF subFm(m_subfont);
     
-    for (int i = 0; i < m_content.size(); ++i) {
+    for (int64_t i = 0; i < m_content.size(); ++i) {
 //        if (m_content.at(i) == '#') { i++; if (i==m_content.size()) break; }
         QString strBeforeCursor(m_content); strBeforeCursor.truncate(i); // take only the part before position i
         
-        int isString = 0, isChild = 1;
+        int64_t isString = 0, isChild = 1;
         
-        QList<int> typeOfItem; // List of which chunks are occuring in strBeforeCursor
+        QList<int64_t> typeOfItem; // List of which chunks are occuring in strBeforeCursor
         QChar lastItem = '#';
         for (QChar item: strBeforeCursor) {
             if(item == '#') typeOfItem.append(isChild);
@@ -1488,14 +1496,14 @@ int MathEdit::getCursorIndexForPosition(qreal x) {
             lastItem = item;
         }
         
-        int32_t childNum = 0, strNum = 0;
+        int64_t childNum = 0, strNum = 0;
         QStringList contList = strBeforeCursor.split('#', Qt::SkipEmptyParts);
         qreal itemW1 = fm.horizontalAdvance(m_content.at(0));
         qreal itemW2 = fm.horizontalAdvance(m_content.at(0));
         qreal w = 0.0;
         bool inSubStr;
         if(!typeOfItem.isEmpty()) {
-            for(int32_t t: typeOfItem) {
+            for(int64_t t: typeOfItem) {
                 if (t == isString) {
                     QString contStr = contList[strNum]; strNum++;
                     inSubStr = false;
@@ -1534,14 +1542,14 @@ int MathEdit::getCursorIndexForPosition(qreal x) {
     return m_content.size();
 }
 
-qreal MathEdit::getPositionForIndex(int id){
+qreal MathEdit::getPositionForIndex(int64_t id){
     QString strBeforeID(m_content); strBeforeID.truncate(id);
     QFontMetricsF fm(m_font), subFm(m_subfont);
     m_centerHeight = baseline();
     
-    int isString = 0, isChild = 1;
+    int64_t isString = 0, isChild = 1;
     
-    QList<int> typeOfItem; // List of which chunks are occuring in strBeforeID
+    QList<int64_t> typeOfItem; // List of which chunks are occuring in strBeforeID
     QChar lastItem = '#';
     for (QChar item: strBeforeID) {
         if(item == '#') typeOfItem.append(isChild);
@@ -1549,11 +1557,11 @@ qreal MathEdit::getPositionForIndex(int id){
         lastItem = item;
     }
     
-    int32_t childNum = 0, strNum = 0;
+    int64_t childNum = 0, strNum = 0;
     QStringList contList = strBeforeID.split('#', Qt::SkipEmptyParts);
     qreal pos = 0.0;
     if(!typeOfItem.isEmpty()) {
-        for(int32_t t: typeOfItem) {
+        for(int64_t t: typeOfItem) {
             if (t == isString) {
                 QString contStr = contList[strNum]; strNum++;
                 QString normStr = contStr.section('_', 0, 0);
@@ -1576,7 +1584,7 @@ qreal MathEdit::getPositionForIndex(int id){
 void MathEdit::backspace() {
     if(m_cursorPos>0) {
         if (m_content.at(m_cursorPos-1) == '#') { // delete the child MathEdit at this position
-            int childIndex = getChildIndexBeforeCursorPos();
+            int64_t childIndex = getChildIndexBeforeCursorPos();
             MathEdit* child = m_contItems.at(childIndex);
             m_contItems.removeAt(childIndex);
             delete child;
@@ -1588,7 +1596,7 @@ void MathEdit::backspace() {
 void MathEdit::del() {
     if(m_cursorPos<m_content.length()) {
         if (m_content.at(m_cursorPos) == '#') { // delete the child MathEdit at this position
-            int childIndex = getChildIndexAtCursorPos();
+            int64_t childIndex = getChildIndexAtCursorPos();
             MathEdit* child = m_contItems.at(childIndex);
             m_contItems.removeAt(childIndex);
             delete child;
@@ -1714,7 +1722,7 @@ int MathEdit::getChunkType(QString chunk) {
     dValidator.setLocale(QLocale::C);
     dValidator.setNotation(QDoubleValidator::ScientificNotation);
     dValidator.setDecimals(-1);
-    int pos = chunk.length();
+    int pos = static_cast<int>(chunk.length());
     QValidator::State dState = dValidator.validate(chunk,pos);
 //qDebug() << "string:" << chunk << "state:" << dState << "pos:" << pos;
     if (dState == QValidator::Acceptable || dState == QValidator::Intermediate) {
