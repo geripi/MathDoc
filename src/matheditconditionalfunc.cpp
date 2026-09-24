@@ -489,9 +489,9 @@ bool MathEditConditionalFunc::shiftDel() {
 void MathEditConditionalFunc::enter() {
     MathEdit *cashedChild = getCashedChild();
     
-    bool cashedChildIsExpr;
-    int32_t lineID = 0;
-    for (int32_t i = 0; i<getExprList().length(); i++) {
+    bool cashedChildIsExpr=false;
+    int64_t lineID = 0;
+    for (int64_t i = 0; i<getExprList().length(); i++) {
         if (getExprList().at(i) == cashedChild) {
             lineID = i;
             cashedChildIsExpr = true;

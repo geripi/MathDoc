@@ -1440,12 +1440,12 @@ void MathEdit::cursorPosUpdate() {
         lastItem = item;
     }
     
-    int32_t childNum = 0, strNum = 0;
+    int64_t childNum = 0, strNum = 0;
     QStringList contList = strBeforeCursor.split('#', Qt::SkipEmptyParts);
     qreal w = 0.0;
-    bool inSubStr;
+    bool inSubStr = false;
     if (!typeOfItem.isEmpty()) {
-        for(int32_t t: typeOfItem) {
+        for(int t: typeOfItem) {
             if (t == isString) {
                 QString contStr = contList[strNum]; strNum++;
                 inSubStr = false;
