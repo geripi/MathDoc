@@ -162,6 +162,9 @@ jobs:
       contents: write
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
       - name: Download Windows artifact
         uses: actions/download-artifact@v5
         with:
