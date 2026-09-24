@@ -86,7 +86,7 @@ set(MATHDOC_SOURCES
 qt6_add_resources(MATHDOC_SOURCES resources.qrc)
 
 # Create the executable
-add_executable(mathdoc ${MATHDOC_SOURCES})
+add_executable(mathdoc MACOSX_BUNDLE ${MATHDOC_SOURCES})
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(mathdoc PRIVATE
         -Wall
