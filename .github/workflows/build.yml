@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'
   pull_request:
 
 jobs:
@@ -150,3 +152,44 @@ jobs:
           name: MathDoc-macOS
           path: MathDoc-macOS.zip
 
+
+
+  release:
+    if: github.ref_type == 'tag'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: MathDoc-Windows
+          path: release
+
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: MathDoc-macOS
+          path: release
+
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: MathDoc-Linux
+          path: release
+
+      - name: Show release files
+        run: ls -lh release
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --title "MathDoc ${{ github.ref_name }}" \
+            --generate-notes \
+            release/MathDoc-Windows.zip \
+            release/MathDoc-macOS.zip \
+            release/MathDoc-Linux-x86_64.AppImage
