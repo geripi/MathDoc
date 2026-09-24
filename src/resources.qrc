@@ -1,0 +1,44 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<!--
+Copyright (C) 2024 Gerald Pichler
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.`
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see https://www.gnu.org/licenses/.
+-->
+
+ <qresource>
+    <file>icons/mathdoc.png</file>
+    <file>icons/new_window.png</file>
+    <file>icons/new_document.png</file>
+    <file>icons/open.png</file>
+    <file>icons/save.png</file>
+    <file>icons/save_as.png</file>
+    <file>icons/close_document.png</file>
+    <file>icons/close_window.png</file>
+    <file>icons/exit.png</file>
+    <file>icons/copy.png</file>
+    <file>icons/paste.png</file>
+    <file>icons/fontcolor.png</file>
+    <file>icons/backgroundcolor.png</file>
+    <file>icons/tile.png</file>
+    <file>icons/cascade.png</file>
+    <file>icons/next.png</file>
+    <file>icons/previous.png</file>
+    <file>icons/about.png</file>
+    <file>icons/mathdoc_splash.png</file>
+    <file>icons/warnings.png</file>
+    <file>icons/structure.png</file>
+    <file>icons/toPDF.png</file>
+    <file>icons/info.png</file>
+ </qresource>
+</RCC>

@@ -1,0 +1,13 @@
+# CMake build directory
+build/
+
+# IDE-specific files
+*.kdev4
+
+# Compiled object files
+*.o
+
+*.pdf
+
+*.mad
+
