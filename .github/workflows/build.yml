@@ -63,8 +63,23 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           mkdir -p AppDir/usr/bin
+          mkdir -p AppDir/usr/share/applications
+          mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
+          
           cp build/src/mathdoc AppDir/usr/bin/mathdoc
-
+          cp src/icons/mathdoc.png AppDir/usr/share/icons/hicolor/256x256/apps/mathdoc.png
+          
+          cat > AppDir/usr/share/applications/mathdoc.desktop <<'EOF'
+          [Desktop Entry]
+          Type=Application
+          Name=MathDoc
+          Comment=Mathematical document editor
+          Exec=mathdoc
+          Icon=mathdoc
+          Categories=Education;Science;
+          Terminal=false
+          EOF
+          
       - name: Build Linux AppImage
         if: runner.os == 'Linux'
         run: |
