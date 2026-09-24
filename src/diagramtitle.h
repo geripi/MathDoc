@@ -58,7 +58,7 @@ public:
     
     void keyPressEvent(QKeyEvent* event) override;
     void insertText(const QString& inText);
-    void insertTextAt(int32_t pos, const QString& inText);
+    void insertTextAt(int64_t pos, const QString& inText);
     
     bool processAllContent();
     
@@ -87,13 +87,13 @@ protected:
     virtual void upArrow();
     virtual void downArrow();
     void cursorPosUpdate();
-    virtual bool processContent(int32_t selBegin, int32_t selEnd);
+    virtual bool processContent(int64_t selBegin, int64_t selEnd);
     
     qreal textWidth(const QString &text);
     qreal subtextWidth(const QString &text);
     
-    int getCursorIndexForPosition(qreal x);
-    qreal getPositionForIndex(int id);
+    int64_t getCursorIndexForPosition(qreal x);
+    qreal getPositionForIndex(int64_t id);
     
     
 private:
@@ -103,11 +103,11 @@ private:
     Data *m_data;
     PageDiagramItem *m_parent;
     
-    int32_t m_cursorPos = 0.0;
+    int64_t m_cursorPos = 0.0;
     QTimer m_cursorTimer;
     bool m_cursorVisible = false;
     qreal m_cursorX, m_cursorY, m_cursorW, m_cursorH;
-    int32_t m_selectBegin = -1, m_selectEnd = -1, m_selectAnchor = -1;
+    int64_t m_selectBegin = -1, m_selectEnd = -1, m_selectAnchor = -1;
     QRectF getCursorRect() const { return QRectF(m_cursorX, m_cursorY, m_cursorW, m_cursorH);}
     
     

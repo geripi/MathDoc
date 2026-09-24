@@ -95,6 +95,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         -Wconversion
         -Wsign-conversion
         -Wshadow
+        -Werror
     )
 elseif(MSVC)
     target_compile_options(mathdoc PRIVATE

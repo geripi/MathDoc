@@ -82,7 +82,7 @@ void PageGraphicsScene::addA4Page()
 
 int PageGraphicsScene::pageCount() const
 {
-    return m_pages.count();
+    return static_cast<int>(m_pages.count());
 }
 
 void PageGraphicsScene::setCursorPosition(const QPointF &pos)
@@ -423,6 +423,8 @@ void PageGraphicsScene::keyPressEvent(QKeyEvent *keyEvent) {
     const bool altPressed = keyEvent->modifiers() & Qt::AltModifier;
     const bool shiftPressed = keyEvent->modifiers() & Qt::ShiftModifier;
     const bool ctrlPressed = keyEvent->modifiers() & Qt::ControlModifier;
+    Q_UNUSED(altPressed); Q_UNUSED(ctrlPressed);
+    
     
     // If 'T' key is pressed and no item has focus, add a new text frame
     if (keyEvent->key() == Qt::Key_T && (keyEvent->modifiers() & Qt::ControlModifier) && !focusItem()) {
@@ -748,7 +750,7 @@ qDebug() << "PageGraphicsScene::compute: Starting computation of whole document.
     m_data->clear(); // delete all previous calculations
     QList<PageMathItem*> temporaryNotComputed;
     for (PageMathItem* item: mathFrames()) {
-        for(int32_t i = temporaryNotComputed.length()-1; i >=0; i--) {
+        for(int64_t i = temporaryNotComputed.length()-1; i >=0; i--) {
             PageMathItem* retryItem = temporaryNotComputed.at(i);
             Data *tmpData = new Data();
             tmpData->deepCopy(m_data); // cash the m_data if the item computation fails
@@ -773,7 +775,7 @@ qDebug() << "PageGraphicsScene::compute: Starting computation of whole document.
         }
         delete tmpData;
     }
-    for(int32_t i = temporaryNotComputed.length()-1; i >=0; i--) {
+    for(int64_t i = temporaryNotComputed.length()-1; i >=0; i--) {
         PageMathItem* retryItem = temporaryNotComputed.at(i);
         retryItem->compute();
         if (!retryItem->hasErrorMessages()) {

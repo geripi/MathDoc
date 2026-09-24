@@ -14,8 +14,8 @@ DiagramTitle::DiagramTitle(Data *d, PageDiagramItem *parent)
 : QGraphicsObject(parent),
   m_data(d),
   m_parent(parent),
-  m_font(m_fontName, m_mathFontSize, QFont::Bold),
-  m_subFont(m_fontName, m_mathFontSize*m_subScriptScale, QFont::Bold),
+  m_font(m_fontName, static_cast<int>(m_mathFontSize), QFont::Bold),
+  m_subFont(m_fontName, static_cast<int>(m_mathFontSize*m_subScriptScale), QFont::Bold),
   m_fontMetrics(m_font),
   m_subFontMetrics(m_subFont)
 {
@@ -214,22 +214,22 @@ void DiagramTitle::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     
     QColor textColor = Qt::black;
     painter->setPen(QPen(textColor, 1, Qt::SolidLine)); painter->setFont(m_font);
-    painter->drawText(currentX, 0, normStr);
+    painter->drawText(QPointF(currentX, 0), normStr);
     currentX += textWidth(normStr);
     
     painter->setPen(QPen(textColor, 1, Qt::SolidLine)); painter->setFont(m_subFont);
     qreal textVPos = m_fontMetrics.descent();
-    painter->drawText(currentX, textVPos, subStr);
+    painter->drawText(QPointF(currentX, textVPos), subStr);
     currentX += subtextWidth(subStr);
     
     painter->setPen(QPen(textColor, 1, Qt::SolidLine)); painter->setFont(m_font);
-    painter->drawText(currentX, 0, m_autoUnit);
+    painter->drawText(QPointF(currentX, 0), m_autoUnit);
     currentX += textWidth(m_autoUnit);
     
     if (m_cursorVisible) { // && i == m_cursorPos) {
         cursorPosUpdate();
         painter->setPen(QPen(Qt::black, 1));
-        painter->drawLine(m_cursorX+1, m_cursorY, m_cursorX+1, m_cursorH);
+        painter->drawLine(QPointF(m_cursorX+1, m_cursorY), QPointF(m_cursorX+1, m_cursorH));
         painter->setPen(QPen());
     }
 }
@@ -239,6 +239,7 @@ void DiagramTitle::keyPressEvent(QKeyEvent* event)
     const bool altPressed = event->modifiers() & Qt::AltModifier;
     const bool shiftPressed = event->modifiers() & Qt::ShiftModifier;
     const bool ctrlPressed = event->modifiers() & Qt::ControlModifier;
+    Q_UNUSED(ctrlPressed);
     
     QString charToInsert = event->text();
     int eventKey = event->key();
@@ -301,7 +302,7 @@ void DiagramTitle::insertText(const QString& inText) {
     insertTextAt(m_cursorPos, inText);
 }
 
-void DiagramTitle::insertTextAt(int32_t pos, const QString& inText) {
+void DiagramTitle::insertTextAt(int64_t pos, const QString& inText) {
     QString text = inText;
     if (pos > m_text.length()) pos = m_text.length();
     if(pos>0){
@@ -335,20 +336,24 @@ void DiagramTitle::focusOutEvent(QFocusEvent* event) {
 
 void DiagramTitle::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
+    Q_UNUSED(event);
 }
 
 void DiagramTitle::hoverMoveEvent(QGraphicsSceneHoverEvent* event)
 {
+    Q_UNUSED(event);
 }
 
 void DiagramTitle::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
 {
+    Q_UNUSED(event);
 }
 bool DiagramTitle::processAllContent() {
     return processContent(0, m_text.length());
 }
 
-bool DiagramTitle::processContent(int32_t selBegin, int32_t selEnd) {
+bool DiagramTitle::processContent(int64_t selBegin, int64_t selEnd) {
+    Q_UNUSED(selBegin); Q_UNUSED(selEnd);
     return true;
 }
 
@@ -368,7 +373,7 @@ void DiagramTitle::mousePressEvent(QGraphicsSceneMouseEvent* event) {
 void DiagramTitle::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
     if (event->buttons() & Qt::LeftButton) {
-        int mousePos = getCursorIndexForPosition(event->pos().x());
+        int64_t mousePos = getCursorIndexForPosition(event->pos().x());
         m_selectBegin = std::min(m_selectAnchor, mousePos);
         m_selectEnd   = std::max(m_selectAnchor, mousePos);
         event->accept();
@@ -387,15 +392,16 @@ void DiagramTitle::mouseReleaseEvent(QGraphicsSceneMouseEvent* event) {
 
 void DiagramTitle::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
 {
+    Q_UNUSED(event);
 }
 
 
-int DiagramTitle::getCursorIndexForPosition(qreal x) {
+int64_t DiagramTitle::getCursorIndexForPosition(qreal x) {
     
     QFontMetricsF fm(m_font);
     QFontMetricsF subFm(m_subFont);
     
-    for (int i = 0; i < m_text.size(); ++i) {
+    for (int64_t i = 0; i < m_text.size(); ++i) {
         //        if (m_content.at(i) == '#') { i++; if (i==m_content.size()) break; }
         QString strBeforeCursor(m_text); strBeforeCursor.truncate(i); // take only the part before position i
         
@@ -428,7 +434,7 @@ int DiagramTitle::getCursorIndexForPosition(qreal x) {
     return m_text.size();
 }
 
-qreal DiagramTitle::getPositionForIndex(int id){
+qreal DiagramTitle::getPositionForIndex(int64_t id){
     QString strBeforeID(m_text); strBeforeID.truncate(id);
     
     qreal pos = 0.0;

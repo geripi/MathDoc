@@ -34,19 +34,19 @@ void Unit::clearError() { error_flag = false; }
 // --- arithmetic ---
 Unit Unit::operator*(const Unit& rhs) const {
     std::array<double, COUNT> res{};
-    for (int i=0;i<COUNT;++i) res[i] = exponents[i] + rhs.exponents[i];
+    for (size_t i=0;i<COUNT;++i) res[i] = exponents[i] + rhs.exponents[i];
     return Unit(res);
 }
 
 Unit Unit::operator/(const Unit& rhs) const {
     std::array<double, COUNT> res{};
-    for (int i=0;i<COUNT;++i) res[i] = exponents[i] - rhs.exponents[i];
+    for (size_t i=0;i<COUNT;++i) res[i] = exponents[i] - rhs.exponents[i];
     return Unit(res);
 }
 
 Unit Unit::pow(double n) const {
     std::array<double, COUNT> res{};
-    for (int i=0;i<COUNT;++i) res[i] = exponents[i]*n;
+    for (size_t i=0;i<COUNT;++i) res[i] = exponents[i]*n;
     return Unit(res);
 }
 
@@ -57,7 +57,7 @@ Unit Unit::root(double n) const {
 
 Unit Unit::operator+(const Unit& rhs) const {
     Unit result = *this;
-    for (int i=0;i<COUNT;++i) {
+    for (size_t i=0;i<COUNT;++i) {
         if (exponents[i]!=rhs.exponents[i]) { result.error_flag=true; break; }
     }
     return result;
@@ -68,7 +68,7 @@ Unit Unit::operator-(const Unit& rhs) const {
 }
 
 bool Unit::operator==(const Unit& rhs) const {
-    for (int i=0;i<COUNT;++i) if (exponents[i]!=rhs.exponents[i]) return false;
+    for (size_t i=0;i<COUNT;++i) if (exponents[i]!=rhs.exponents[i]) return false;
     return true;
 }
 
@@ -76,7 +76,7 @@ bool Unit::operator!=(const Unit& rhs) const { return !(*this==rhs); }
 
 void Unit::print() const {
     static const char* names[COUNT] = {"m","kg","s","A","K","mol","cd"};
-    for (int i=0;i<COUNT;++i) {
+    for (size_t i=0;i<COUNT;++i) {
         if (exponents[i]!=0.0) std::cout<<names[i]<<"^"<<exponents[i]<<" ";
     }
     if (error_flag) std::cout<<"(error!)";

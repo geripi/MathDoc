@@ -269,7 +269,7 @@ PageDiagramItem::PlotData PageDiagramItem::getPlotData() const {
      * This also protects us if the user accidentally selects
      * variables with different lengths.
      */
-    const int count = std::min(result.x.size(), result.y.size());
+    const int64_t count = std::min(result.x.size(), result.y.size());
     
     result.x.resize(count);
     result.y.resize(count);
@@ -453,6 +453,7 @@ QVector<qreal> PageDiagramItem::generateTicks(qreal minimum, qreal maximum, int 
 }
 
 QVector<qreal> PageDiagramItem::generateSubTicks(const QVector<qreal> &ticks, bool isXAxis , int targetCount) const {
+    Q_UNUSED(targetCount);
     QVector<qreal> subTicks;
     
     qreal minimum = ticks.first();
@@ -709,7 +710,7 @@ void PageDiagramItem::updateMargins() {
                     m_topMargin + 0.5*plotRect().height() + 0.5*m_yEdit->width());
     m_yEdit->setRotation(270);
     
-    m_titleEdit->resize(m_size.width() - m_leftMargin - m_rightMargin, m_titleFm.height());
+    m_titleEdit->resize(qRound(m_size.width() - m_leftMargin - m_rightMargin), qRound(m_titleFm.height()));
     m_titleEditProxy->setPos(m_leftMargin, 5.0);
     
 }
@@ -722,7 +723,7 @@ void PageDiagramItem::drawCurve(QPainter *painter) {
     QPainterPath path;
     bool pathStarted = false;
     
-    const int count = std::min(data.x.size(), data.y.size());
+    const int64_t count = std::min(data.x.size(), data.y.size());
     
     QPen curvePen(m_curveColor);
     curvePen.setWidthF(m_curvePenWidth);
@@ -733,7 +734,7 @@ void PageDiagramItem::drawCurve(QPainter *painter) {
     
     const QRectF rect = plotRect();
     
-    for (int i = 0; i < count; ++i)
+    for (int64_t i = 0; i < count; ++i)
     {
         const qreal x = data.x[i];
         const qreal y = data.y[i];
