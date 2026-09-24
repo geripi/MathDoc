@@ -44,7 +44,7 @@ void MathEditConditionalFunc::setFocus(Qt::FocusReason focusReason) {
     
     MathEdit *cashedChild = getCashedChild();
     
-    bool cashedChildIsExpr;
+    bool cashedChildIsExpr = false;
     int32_t lineID = 0;
     for (int32_t i = 0; i<getExprList().length(); i++) {
         if (getExprList().at(i) == cashedChild) {
