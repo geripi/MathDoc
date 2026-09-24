@@ -64,6 +64,8 @@ public:
     bool hasSameUnit(const MathVariable& other) const;
     bool isDimensionless() const;
     bool isEmpty() const { return m_values.isEmpty(); }
+    bool isUsedAsUnit() const { return m_isUsedAsUnit; }
+    void setIsUsedAsUnit(bool b) { m_isUsedAsUnit = b; }
     QString unitString() const;
     
     // --- Comparison ---
@@ -79,6 +81,9 @@ public:
     
     QList<qreal>::const_iterator cbegin() const { return m_values.cbegin(); }
     QList<qreal>::const_iterator cend()   const { return m_values.cend(); }
+    
+private:
+    bool m_isUsedAsUnit = false;
 };
 
 // Stream operator for qDebug()

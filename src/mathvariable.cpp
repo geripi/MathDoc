@@ -105,6 +105,9 @@ bool MathVariable::operator==(const MathVariable& other) const {
     if (m_unit != other.m_unit) {
         return false; // units must match exactly
     }
+    if (m_isUsedAsUnit != other.isUsedAsUnit()) {
+        return false; // only compare units with units and general variables with general variables
+    }
     if (m_values.size() != other.m_values.size()) {
         return false; // length mismatch
     }
