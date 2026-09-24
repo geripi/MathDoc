@@ -68,9 +68,11 @@ jobs:
       - name: Build Linux AppImage
         if: runner.os == 'Linux'
         run: |
-          export PATH="$PWD:$PATH"
-          export QMAKE=$(find "$Qt6_DIR" -name qmake -type f | head -n 1)
-
+          export QMAKE="$QT_ROOT_DIR/bin/qmake6"
+          
+          echo "Qt root: $QT_ROOT_DIR"
+          echo "QMake: $QMAKE"
+          
           ./linuxdeploy-x86_64.AppImage \
             --appdir AppDir \
             --plugin qt \
