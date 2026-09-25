@@ -158,7 +158,14 @@ void MathEditVariable::setValue(MathVariable m) {
 void MathEditVariable::compute(const MathVariable& boolMask) {
     Q_UNUSED(boolMask);
     
-    setValue(getData()->getValue(getContent()));
+    QString tmpStr = getContent();
+    qreal sign = 1;
+    if (tmpStr.at(0) == QChar('-')) {
+        tmpStr.remove(0,1);
+        sign = -1;
+    }
+    
+    setValue(mul(sign, getData()->getValue(tmpStr)));
     if (std::numeric_limits<qreal>::max() == getValue().first()) {
         
     }
