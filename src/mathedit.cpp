@@ -620,6 +620,7 @@ void MathEdit::compute(const MathVariable& boolMask) {
                 m_result = resultString(true);
             } else {
                 m_mathError = tr("ERROR: Undefined variable '%1'.").arg(getContent());
+                getParentPageMathItem()->addErrorMessage(m_mathError);
                 m_value.clear();
                 m_result = "UNDEFINED";
             }

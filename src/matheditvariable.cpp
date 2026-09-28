@@ -167,6 +167,6 @@ void MathEditVariable::compute(const MathVariable& boolMask) {
     
     setValue(mul(sign, getData()->getValue(tmpStr)));
     if (std::numeric_limits<qreal>::max() == getValue().first()) {
-        
+        getParentPageMathItem()->addErrorMessage(QString("ERROR: Variable '") + tmpStr + QString("' not defined."));
     }
 }

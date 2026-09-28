@@ -750,6 +750,7 @@ qDebug() << "PageGraphicsScene::compute: Starting computation of whole document.
     m_data->clear(); // delete all previous calculations
     QList<PageMathItem*> temporaryNotComputed;
     for (PageMathItem* item: mathFrames()) {
+        // Before computing a new item, try all the previos items that had an error if they compute now:
         for(int64_t i = temporaryNotComputed.length()-1; i >=0; i--) {
             PageMathItem* retryItem = temporaryNotComputed.at(i);
             Data *tmpData = new Data();
@@ -764,25 +765,35 @@ qDebug() << "PageGraphicsScene::compute: Starting computation of whole document.
             delete tmpData;
         }
         
+        // Compute new item:
         Data *tmpData = new Data();
         tmpData->deepCopy(m_data); // cash the m_data if the item computation fails
         
         item->compute();
         
+        // if the new item had an error when computing, add it to the list of items to try again:
         if (item->hasErrorMessages()) {
             temporaryNotComputed.append(item);
             m_data->deepCopy(tmpData); // reset the m_data to the cashed state
         }
         delete tmpData;
     }
-    for(int64_t i = temporaryNotComputed.length()-1; i >=0; i--) {
-        PageMathItem* retryItem = temporaryNotComputed.at(i);
-        retryItem->compute();
-        if (!retryItem->hasErrorMessages()) {
-            temporaryNotComputed.removeAt(i);
-        }
-    }
     
+    // After all items have been computed once, there may be items left
+    // that had errors which might be able to compute now:
+    bool numberOfTemporaryNotComputedItemsIsDropping = true;
+    while(numberOfTemporaryNotComputedItemsIsDropping) {
+        int64_t numberOfTemporaryNotComputedItems = temporaryNotComputed.length();
+        for(int64_t i = temporaryNotComputed.length()-1; i >=0; i--) {
+            PageMathItem* retryItem = temporaryNotComputed.at(i);
+            retryItem->compute();
+            if (!retryItem->hasErrorMessages()) {
+                temporaryNotComputed.removeAt(i);
+            }
+        }
+        if ( numberOfTemporaryNotComputedItems <= temporaryNotComputed.length() )
+            numberOfTemporaryNotComputedItemsIsDropping = false;
+    }
     
     for (PageDiagramItem* item: diagramFrames()) {
         item->refresh();
