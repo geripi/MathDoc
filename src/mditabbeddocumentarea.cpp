@@ -166,7 +166,11 @@ bool MdiTabbedDocumentArea::exportCurrentDocumentAsPDF() {
         return false;
     }
     
-    QString pdfPath = currentDoc->filePath(); pdfPath.chop(4); pdfPath += QString(".pdf");
+    /*QString pdfPath = currentDoc->filePath();
+    pdfPath.chop(4);
+    pdfPath += QString(".pdf");*/
+    QFileInfo fInfo(currentDoc->filePath());
+    QString pdfPath = fInfo.path() + QDir::separator() + fInfo.completeBaseName() + ".pdf";
     qDebug() << "MdiTabbedDocumentArea exportCurrentDocumentAsPDF: pdfPath = " << pdfPath;
     
     return currentDoc->exportPDF(pdfPath);

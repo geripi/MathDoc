@@ -460,12 +460,12 @@ void PageGraphicsScene::keyPressEvent(QKeyEvent *keyEvent) {
                     delete textItem;       // Delete the item object
                     emit documentContentItemsChanged(); // to notify DocumentWidget that content has changed.
                 }
-                if (PageMathItem* mathItem = dynamic_cast<PageMathItem*>(item)) {
+                else if (PageMathItem* mathItem = dynamic_cast<PageMathItem*>(item)) {
                     removeItem(mathItem); // Remove from scene
                     delete mathItem;       // Delete the item object
                     emit documentContentItemsChanged(); // to notify DocumentWidget that content has changed.
                 }
-                if (PageDiagramItem* diagramItem = dynamic_cast<PageDiagramItem*>(item)) {
+                else if (PageDiagramItem* diagramItem = dynamic_cast<PageDiagramItem*>(item)) {
                     removeItem(diagramItem); // Remove from scene
                     delete diagramItem;      // Delete the item object
                     emit documentContentItemsChanged(); // to notify DocumentWidget that content has changed.
