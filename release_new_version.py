@@ -83,5 +83,8 @@ run([ "git", "-C", str(REPO), "commit", "-m", commit_message,])
 tag = f"v{new_version}"
 run(["git", "-C", str(REPO), "tag", "-f", tag,])
 
+# Push the current branch
+run(["git", "-C", str(REPO), "push", "origin", "HEAD",])
+
 # Force-push the tag
 run(["git", "-C", str(REPO), "push", "-f", "origin", tag,])

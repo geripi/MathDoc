@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
     }
 */    
     app.setApplicationName("MathDoc");
-    app.setApplicationVersion("1.0.6");
+    app.setApplicationVersion("1.0.7");
     app.setWindowIcon(QIcon(":/icons/mathdoc.png"));
     
     // Create an instance of our custom MainWindow class.
