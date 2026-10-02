@@ -74,7 +74,7 @@ print(f"Updated application version to {new_version}")
 
 
 # Add the entire repository
-run(["git", "-C", str(REPO), "add", "-A",])
+run(["git", "add", "--", str(REPO)])
 
 # Commit all changes
 run([ "git", "-C", str(REPO), "commit", "-m", commit_message,])
