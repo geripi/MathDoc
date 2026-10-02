@@ -470,6 +470,11 @@ void PageGraphicsScene::keyPressEvent(QKeyEvent *keyEvent) {
                     delete diagramItem;      // Delete the item object
                     emit documentContentItemsChanged(); // to notify DocumentWidget that content has changed.
                 }
+                else if (PageImageItem* imageItem = dynamic_cast<PageImageItem*>(item)) {
+                    removeItem(imageItem); // Remove from scene
+                    delete imageItem;      // Delete the item object
+                    emit documentContentItemsChanged(); // to notify DocumentWidget that content has changed.
+                }
                 // Add similar checks for other custom item types you might want to delete
             }
             keyEvent->accept(); // Mark the event as handled
