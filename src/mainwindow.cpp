@@ -568,12 +568,13 @@ void MainWindow::saveDocumentAs() {
 }
 
 void MainWindow::exportAsPDF() {
+    
     if (MdiTabbedDocumentArea *activeMdi = activeMdiTabbedArea()) {
         if (activeMdi->exportCurrentDocumentAsPDF()) {
             statusBar()->showMessage(tr("Document exported as PDF"), 2000);
             //qDebug() << "MainWindow: Document saved as new file successfully.";
         } else {
-            statusBar()->showMessage(tr("export cancelled or failed"), 2000);
+            statusBar()->showMessage(tr("Export cancelled or failed, save document first!"), 2000);
             //qDebug() << "MainWindow: Save As cancelled or failed.";
         }
     } else {

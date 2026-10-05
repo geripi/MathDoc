@@ -163,7 +163,8 @@ bool MdiTabbedDocumentArea::exportCurrentDocumentAsPDF() {
     QString initialPath = QFileInfo(currentDoc->filePath()).fileName();
     if (initialPath.isEmpty() || initialPath == "Untitled.mad") {
         qDebug() << "MdiTabbedDocumentArea exportCurrentDocumentAsPDF: Current document has no name yet.";
-        return false;
+        saveCurrentDocumentAs();
+        //return false;
     }
     
     /*QString pdfPath = currentDoc->filePath();
