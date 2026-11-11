@@ -74,6 +74,15 @@ void Data::clear()
 {
     m_variables.clear();
     initialize();
+    
+    // Mark everything as unit:
+    for (MathVariable m: m_variables.values()) {
+        m.setIsUsedAsUnit(true);
+    }
+    // Un-mark pi and e:
+    m_variables[QStringLiteral("π")].setIsUsedAsUnit(false);
+    m_variables[QStringLiteral("e")].setIsUsedAsUnit(false);
+    
 }
 void Data::initialize()
 {
@@ -101,6 +110,8 @@ void Data::initialize()
                        MathVariable({1.0}, { 1.0, 1.0,-2.0, 0.0, 0.0, 0.0, 0.0}));        // Newton = kg·m/s²
     m_variables.insert(QStringLiteral("Pa"),
                        MathVariable({1.0}, {-1.0, 1.0,-2.0, 0.0, 0.0, 0.0, 0.0}));       // Pascal = N/m²
+    m_variables.insert(QStringLiteral("bar"),
+                       MathVariable({100000.0}, {-1.0, 1.0,-2.0, 0.0, 0.0, 0.0, 0.0}));       // bar = 10^5 N/m²
     m_variables.insert(QStringLiteral("J"),
                        MathVariable({1.0}, { 2.0, 1.0,-2.0, 0.0, 0.0, 0.0, 0.0}));        // Joule = N·m
     m_variables.insert(QStringLiteral("W"),
@@ -171,6 +182,7 @@ void Data::initialize()
             m_variables.insert(symbol, MathVariable({val*pfactor}, m_variables[baseUnit].unit()));
         }
     }
+    
     
     // constants
     m_variables.insert(QStringLiteral("π"), MathVariable({ pi })); // π

@@ -603,7 +603,8 @@ void MathEdit::compute(const MathVariable& boolMask) {
                 if (getContItems().at(aID-1)->type() == MEVariable) {
                     getContItems().at(aID-1)->setValue(getValue());
                     // register the variable name with m_data:
-                    if (getData()->contains(getContItems().at(aID-1)->getContent())) {
+                    QString varName = getContItems().at(aID-1)->getContent();
+                    if (getData()->contains(varName)) {
                         setMathWarning(tr("WARNING: Redefinition of existing variable '%1'.").arg(getContItems().at(aID-1)->getContent()));
                         qDebug() << tr("WARNING: Redefinition of existing variable '%1'.").arg(getContItems().at(aID-1)->getContent());
                     }
