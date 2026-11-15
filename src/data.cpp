@@ -111,7 +111,7 @@ void Data::initialize()
     m_variables.insert(QStringLiteral("Pa"),
                        MathVariable({1.0}, {-1.0, 1.0,-2.0, 0.0, 0.0, 0.0, 0.0}));       // Pascal = N/m²
     m_variables.insert(QStringLiteral("bar"),
-                       MathVariable({100000.0}, {-1.0, 1.0,-2.0, 0.0, 0.0, 0.0, 0.0}));       // bar = 100000 N/m²
+                       MathVariable({100000.0}, {-1.0, 1.0,-2.0, 0.0, 0.0, 0.0, 0.0}));       // bar = 10^5 N/m²
     m_variables.insert(QStringLiteral("J"),
                        MathVariable({1.0}, { 2.0, 1.0,-2.0, 0.0, 0.0, 0.0, 0.0}));        // Joule = N·m
     m_variables.insert(QStringLiteral("W"),
@@ -182,6 +182,7 @@ void Data::initialize()
             m_variables.insert(symbol, MathVariable({val*pfactor}, m_variables[baseUnit].unit()));
         }
     }
+    
     
     // constants
     m_variables.insert(QStringLiteral("π"), MathVariable({ pi })); // π
