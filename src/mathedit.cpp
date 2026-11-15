@@ -457,26 +457,27 @@ void MathEdit::compute(const MathVariable& boolMask) {
         }
         
         // 3) calculate all additions and subtractions third:
-        if (mathExpression.length()>=3) {
-            for (int64_t i = mathExpression.length()-2; i >= 0; i--) {
-                if (mathExpression.at(i)->type() == MEOperator &&
-                    (mathExpression.at(i)->getContent() == "+" || mathExpression.at(i)->getContent() == "-")) {
-                    if (i > 0 && i < mathExpression.length()-1) {
-                        if (mathExpression.at(i-1)->type() != MEOperator && mathExpression.at(i+1)->type() != MEOperator) {
-                            MathEdit *tempME = MathEditCreateNew::newMathEdit(QString(""), MEConstant, getData(), getParentPageMathItem(), this);
-                            tempMEList.append(tempME);
-                            if (mathExpression.at(i)->getContent() == "+")
-                                tempME->setValue(add(mathExpression.at(i-1)->getValue(),
-                                                     mathExpression.at(i+1)->getValue(), boolMask));
-                            if (mathExpression.at(i)->getContent() == "-")
-                                tempME->setValue(sub(mathExpression.at(i-1)->getValue(),
-                                                     mathExpression.at(i+1)->getValue(), boolMask));
-                            mathExpression.removeAt(i+1); mathExpression.removeAt(i); mathExpression.removeAt(i-1);
-                            mathExpression.insert(i-1, tempME);
-                        }
+        while (mathExpression.length()>2) {
+            bool evaluated = false;
+            if (mathExpression.at(1)->type() == MEOperator &&
+                (mathExpression.at(1)->getContent() == "+" || mathExpression.at(1)->getContent() == "-")) {
+                if (1 < mathExpression.length()-1) {
+                    if (mathExpression.at(0)->type() != MEOperator && mathExpression.at(2)->type() != MEOperator) {
+                        MathEdit *tempME = MathEditCreateNew::newMathEdit(QString(""), MEConstant, getData(), getParentPageMathItem(), this);
+                        tempMEList.append(tempME);
+                        if (mathExpression.at(1)->getContent() == "+")
+                            tempME->setValue(add(mathExpression.at(0)->getValue(),
+                                                 mathExpression.at(2)->getValue(), boolMask));
+                        if (mathExpression.at(1)->getContent() == "-")
+                            tempME->setValue(sub(mathExpression.at(0)->getValue(),
+                                                 mathExpression.at(2)->getValue(), boolMask));
+                        mathExpression.removeAt(2); mathExpression.removeAt(1); mathExpression.removeAt(0);
+                        mathExpression.insert(0, tempME);
+                        evaluated = true;
                     }
                 }
             }
+            if (!evaluated) break;
         }
         
         // 4) calculate all comparisons fourth:
@@ -603,11 +604,12 @@ void MathEdit::compute(const MathVariable& boolMask) {
                 if (getContItems().at(aID-1)->type() == MEVariable) {
                     getContItems().at(aID-1)->setValue(getValue());
                     // register the variable name with m_data:
-                    if (getData()->contains(getContItems().at(aID-1)->getContent())) {
-                        setMathWarning(tr("WARNING: Redefinition of existing variable '%1'.").arg(getContItems().at(aID-1)->getContent()));
-                        qDebug() << tr("WARNING: Redefinition of existing variable '%1'.").arg(getContItems().at(aID-1)->getContent());
+                    QString varName = getContItems().at(aID-1)->getContent();
+                    if (getData()->contains(varName)) {
+                        setMathWarning(tr("WARNING: Redefinition of existing variable '%1'.").arg(varName));
+                        qDebug() << tr("WARNING: Redefinition of existing variable '%1'.").arg(varName);
                     }
-                    getData()->setValue(getContItems().at(aID-1)->getContent(), getValue());
+                    getData()->setValue(varName, getValue());
                 }
             }
         }
