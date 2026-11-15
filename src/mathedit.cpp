@@ -457,26 +457,23 @@ void MathEdit::compute(const MathVariable& boolMask) {
         }
         
         // 3) calculate all additions and subtractions third:
-        if (mathExpression.length()>=3) {
-            for (int64_t i = mathExpression.length()-2; i >= 0; i--) {
-                if (mathExpression.at(i)->type() == MEOperator &&
-                    (mathExpression.at(i)->getContent() == "+" || mathExpression.at(i)->getContent() == "-")) {
-                    if (i > 0 && i < mathExpression.length()-1) {
-                        if (mathExpression.at(i-1)->type() != MEOperator && mathExpression.at(i+1)->type() != MEOperator) {
-                            MathEdit *tempME = MathEditCreateNew::newMathEdit(QString(""), MEConstant, getData(), getParentPageMathItem(), this);
-                            tempMEList.append(tempME);
-                            if (mathExpression.at(i)->getContent() == "+")
-                                tempME->setValue(add(mathExpression.at(i-1)->getValue(),
-                                                     mathExpression.at(i+1)->getValue(), boolMask));
-                            if (mathExpression.at(i)->getContent() == "-")
-                                tempME->setValue(sub(mathExpression.at(i-1)->getValue(),
-                                                     mathExpression.at(i+1)->getValue(), boolMask));
-                            mathExpression.removeAt(i+1); mathExpression.removeAt(i); mathExpression.removeAt(i-1);
-                            mathExpression.insert(i-1, tempME);
-                        }
-                    }
+        while (mathExpression.length()>2) {
+            if (mathExpression.at(1)->type() == MEOperator &&
+                (mathExpression.at(1)->getContent() == "+" || mathExpression.at(1)->getContent() == "-")) {
+                if (mathExpression.at(0)->type() != MEOperator && mathExpression.at(2)->type() != MEOperator) {
+                    MathEdit *tempME = MathEditCreateNew::newMathEdit(QString(""), MEConstant, getData(), getParentPageMathItem(), this);
+                    tempMEList.append(tempME);
+                    if (mathExpression.at(1)->getContent() == "+")
+                        tempME->setValue(add(mathExpression.at(0)->getValue(),
+                                             mathExpression.at(2)->getValue(), boolMask));
+                    if (mathExpression.at(1)->getContent() == "-")
+                        tempME->setValue(sub(mathExpression.at(0)->getValue(),
+                                             mathExpression.at(2)->getValue(), boolMask));
+                    mathExpression.removeAt(2); mathExpression.removeAt(1); mathExpression.removeAt(0);
+                    mathExpression.insert(0, tempME);
                 }
             }
+            if (mathExpression.length()<3) break;
         }
         
         // 4) calculate all comparisons fourth:
