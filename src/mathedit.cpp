@@ -458,27 +458,28 @@ void MathEdit::compute(const MathVariable& boolMask) {
         }
         
         // 3) calculate all additions and subtractions third:
-        while (mathExpression.length()>2) {
+        int64_t pos = 1;
+        while (mathExpression.length()>2 && pos < mathExpression.length()-1) {
             bool evaluated = false;
-            if (mathExpression.at(1)->type() == MEOperator &&
-                (mathExpression.at(1)->getContent() == "+" || mathExpression.at(1)->getContent() == "-")) {
-                if (1 < mathExpression.length()-1) {
-                    if (mathExpression.at(0)->type() != MEOperator && mathExpression.at(2)->type() != MEOperator) {
+            if (mathExpression.at(pos)->type() == MEOperator &&
+                (mathExpression.at(pos)->getContent() == "+" || mathExpression.at(1)->getContent() == "-")) {
+                if (pos < mathExpression.length()-1) {
+                    if (mathExpression.at(pos-1)->type() != MEOperator && mathExpression.at(pos+1)->type() != MEOperator) {
                         MathEdit *tempME = MathEditCreateNew::newMathEdit(QString(""), MEConstant, getData(), getParentPageMathItem(), this);
                         tempMEList.append(tempME);
-                        if (mathExpression.at(1)->getContent() == "+")
-                            tempME->setValue(add(mathExpression.at(0)->getValue(),
-                                                 mathExpression.at(2)->getValue(), boolMask));
-                        if (mathExpression.at(1)->getContent() == "-")
-                            tempME->setValue(sub(mathExpression.at(0)->getValue(),
-                                                 mathExpression.at(2)->getValue(), boolMask));
-                        mathExpression.removeAt(2); mathExpression.removeAt(1); mathExpression.removeAt(0);
-                        mathExpression.insert(0, tempME);
+                        if (mathExpression.at(pos)->getContent() == "+")
+                            tempME->setValue(add(mathExpression.at(pos-1)->getValue(),
+                                                 mathExpression.at(pos+1)->getValue(), boolMask));
+                        if (mathExpression.at(pos)->getContent() == "-")
+                            tempME->setValue(sub(mathExpression.at(pos-1)->getValue(),
+                                                 mathExpression.at(pos+1)->getValue(), boolMask));
+                        mathExpression.removeAt(pos+1); mathExpression.removeAt(pos); mathExpression.removeAt(pos-1);
+                        mathExpression.insert(pos-1, tempME);
                         evaluated = true;
                     }
                 }
             }
-            if (!evaluated) break;
+            if (!evaluated) pos += 1;
         }
         
         // 4) calculate all comparisons fourth:
