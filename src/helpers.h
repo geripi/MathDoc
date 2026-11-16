@@ -238,10 +238,12 @@ inline MathVariable convertToMathVariable(const QString &str) {
             res.append(list[0].toDouble());
         } else if (list.size() == 3) {
             qreal start, end;
-            long long n;
             start = list[0].toDouble();
             end = list[1].toDouble();
-            n = qRound(list[2].toDouble());
+            const double nD = list[2].toDouble();
+            if (!std::isfinite(nD) || nD > 1e5)
+                throw std::invalid_argument("List must have between 2 and 100.000 entries");
+            qsizetype n = qRound64(nD);
             if (n<2) n = 2;
             qreal delta = (end - start) / static_cast<qreal>(n - 1);
             res.reserve(n);

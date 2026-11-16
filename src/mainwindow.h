@@ -54,6 +54,7 @@ public:
     void setAllDocumentsClosed(bool b) { m_allDocumentsClosed = b; }
     bool showMathWarnings() const { return m_showMathWarnings; }
     bool showMathStructure() const { return m_showMathStructure; }
+    void clearCopiedItemsList() { m_copiedItems.clear(); }
     
 public slots:
     // Slot to update the UI (menu/toolbar actions) based on the active MDI sub-window.

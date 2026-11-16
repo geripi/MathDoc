@@ -438,23 +438,27 @@ QVector<qreal> PageDiagramItem::generateTicks(qreal minimum, qreal maximum, int 
     const qreal range = maximum - minimum;
     const qreal spacing = niceNumber(range / std::max(targetCount - 1, 1), true);
     
-    if (spacing <= 0.0 || !std::isfinite(spacing)) {
+    if (spacing <= 0.0 || !std::isfinite(spacing) || !(spacing > 0.0)) {
         return ticks;
     }
     
     const qreal first = std::ceil(minimum / spacing) * spacing;
     const qreal last = std::floor(maximum / spacing) * spacing;
     
-    for (qreal value = first; value <= last + spacing * 0.001; value += spacing) {
-            ticks.append(value);
-    }
-        
+    const double countD = std::floor((last-first) / spacing) + 1.0;
+    if (countD > 100.0) return ticks;
+    
+    for (int k = 0; k < int(countD); ++k)
+        ticks.append(first + k * spacing);
+    
     return ticks;
 }
 
 QVector<qreal> PageDiagramItem::generateSubTicks(const QVector<qreal> &ticks, bool isXAxis , int targetCount) const {
     Q_UNUSED(targetCount);
     QVector<qreal> subTicks;
+    
+    if (ticks.isEmpty()) return subTicks;
     
     qreal minimum = ticks.first();
     qreal maximum = ticks.last();

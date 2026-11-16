@@ -28,6 +28,7 @@
 #include <QPageSize>
 #include <QPageLayout>
 #include <QFileInfo>
+#include <QSaveFile>
 
 // Constructor for DocumentWidget.
 DocumentWidget::DocumentWidget(MainWindow *mainWindow, QWidget *parent, const QString &filePath)
@@ -70,7 +71,7 @@ void DocumentWidget::setFilePath(const QString &path) {
         m_filePath = path;
         // After setting a new path, the document is considered "saved" to that path
         // until further modifications.
-        setModified(false); // Clear the modified flag
+        //setModified(false); // Clear the modified flag
         qDebug() << "DocumentWidget setFilePath:" << this << "New Path:" << m_filePath << "Modified:" << isModified();
     }
 }
@@ -92,8 +93,8 @@ bool DocumentWidget::save() {
         qDebug() << "DocumentWidget save: No file path set for" << this;
         return false; // This case should be handled by a "Save As" dialog in the main window.
     }
-
-    QFile file(m_filePath);
+    
+    QSaveFile file(m_filePath);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
         QMessageBox::warning(this, "MathDoc",
                              QString("Could not write to file %1:\n%2")
@@ -101,7 +102,7 @@ bool DocumentWidget::save() {
         qDebug() << "DocumentWidget save: Failed to open file" << m_filePath << ":" << file.errorString();
         return false;
     }
-
+    
     // Set the guard flag BEFORE starting the save logic
     m_isSaving = true;
     qDebug() << "DocumentWidget save: Setting m_isSaving to true.";
@@ -125,11 +126,27 @@ bool DocumentWidget::save() {
         framesArray.append(frame->toJson());
     }
     docObject["frames"] = framesArray;
-
+    
     QJsonDocument jsonDoc(docObject);
-    file.write(jsonDoc.toJson(QJsonDocument::Indented)); // Use Indented for readability
-    file.close();
-
+    QByteArray jsonData = jsonDoc.toJson(QJsonDocument::Indented);
+    // Write serialized data
+    if (file.write(jsonData) != jsonData.size()) {
+        QMessageBox::warning(this, "MathDoc", QString("Could not write to file %1:\n%2").arg(m_filePath, file.errorString()));
+        qDebug() << "DocumentWidget save: Failed to write" << m_filePath << ":" << file.errorString();
+        file.cancelWriting();
+        m_isSaving = false;
+        return false;
+    }
+    
+    // Commit the temporary file, replacing the original file
+    if (!file.commit()) {
+        QMessageBox::warning(this, "MathDoc", QString("Could not save file %1:\n%2").arg(m_filePath, file.errorString()));
+        qDebug() << "DocumentWidget save: Failed to commit"
+        << m_filePath << ":" << file.errorString();
+        m_isSaving = false;
+        return false;
+    }
+    
     setModified(false); // Clear the modified flag after saving
     m_isSaving = false; // Reset the guard flag AFTER marking as unmodified
     qDebug() << "DocumentWidget save: Setting m_isSaving to false.";
@@ -309,7 +326,7 @@ bool DocumentWidget::load() {
     // --- Page Creation (Bottom) - After loading all items ---
     // Calculate how many pages are required to contain the lowest item.
     QSizeF pageSizePx = m_graphicsScene->pageSizePx();
-    int requiredPages = qCeil(lowestY / pageSizePx.height());
+    int requiredPages = std::clamp(qCeil(lowestY / pageSizePx.height()), 1, 2000);
     
     // Ensure at least one page is present if content exists but doesn't fill a full page
     if (requiredPages == 0 && lowestY > 0) {

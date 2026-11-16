@@ -141,14 +141,18 @@ bool MdiTabbedDocumentArea::saveCurrentDocumentAs() {
     if (!fileName.toLower().endsWith(".mad")) {
         fileName += ".mad";
     }
-
+    
+    const QString oldPath = currentDoc->filePath();
     currentDoc->setFilePath(fileName); // Update the document's file path
     qDebug() << "MdiTabbedDocumentArea saveAs: Saving to new path:" << fileName;
     bool saved = currentDoc->save();
     if (saved) {
+        currentDoc->setModified(false);
         // Update the tab title to reflect the new file name and remove '*'
         onCurrentTabChanged(m_tabWidget->currentIndex());
         emit documentModificationStatusChanged(); // Emit after saving as
+    } else {
+        currentDoc->setFilePath(oldPath); // If saving failed, document stays in "changed" status.
     }
     return saved;
 }

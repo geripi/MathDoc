@@ -277,6 +277,12 @@ void MathEditConditionalFunc::updateBoundingRect() {
 void MathEditConditionalFunc::compute(const MathVariable& boolMask) {
     Q_UNUSED(boolMask);
     
+    if (m_boolList.isEmpty()) {
+        setMathError(tr("No argument")); return;
+    } else if (m_boolList.size() != m_exprList.size()) {
+        setMathError(tr("Incompatible list sizes")); return;
+    }
+    
     for (MathEdit *m: m_boolList)  {
         m->compute();
     }

@@ -164,6 +164,9 @@ void PageGraphicsScene::addItem(QGraphicsItem *item) {
 
 // Override removeItem to disconnect from removed PageTextItem's signals
 void PageGraphicsScene::removeItem(QGraphicsItem *item) {
+    // Once we delete something, the objects may no longer be accessible for inserting.
+    m_MainWindow->clearCopiedItemsList();
+    
     if (PageTextItem *textItem = qgraphicsitem_cast<PageTextItem*>(item)) {
         disconnect(textItem, &PageTextItem::itemDataChanged,
                    this, &PageGraphicsScene::documentContentItemsChanged);
@@ -256,6 +259,8 @@ void PageGraphicsScene::insertImageFrame()
         return;
     }
     PageImageItem *item = PageImageItem::createFromFileDialog(nullptr);
+    if (!item) return; // abgebrochen oder Bild nicht lesbar
+    
     item->setPos(m_cursorItem->pos());
     
     addItem(item);

@@ -137,7 +137,7 @@ void Data::initialize()
     m_variables.insert(QStringLiteral("lm"),
                        MathVariable({1.0}, { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0}));         // Lumen = cd·sr
     m_variables.insert(QStringLiteral("lx"),
-                       MathVariable({1.0}, { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0}));         // Lux = lm/m²
+                       MathVariable({1.0}, {-2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0}));         // Lux = lm/m²
     m_variables.insert(QStringLiteral("Bq"),
                        MathVariable({1.0}, { 0.0, 0.0,-1.0, 0.0, 0.0, 0.0, 0.0}));        // Becquerel = 1/s
     m_variables.insert(QStringLiteral("Gy"),

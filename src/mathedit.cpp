@@ -34,6 +34,7 @@ MathEdit::MathEdit(Data *d, PageMathItem *parentPageMathItem, QGraphicsObject* p
     setAcceptHoverEvents(true);
     
     
+    
     if (parentPageMathItem != parent && parentPageMathItem != nullptr) {
         MathEdit *p = qobject_cast<MathEdit*>(parentObject());
         m_mathFontSize = p->getMathFontSize();
